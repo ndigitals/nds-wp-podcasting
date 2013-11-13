@@ -81,11 +81,25 @@ class NDS_WP_Podcasting
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 
         // Define custom functionality. Read more about actions and filters: http://codex.wordpress.org/Plugin_API#Hooks.2C_Actions_and_Filters
-        /*add_action( 'init', array( $this, 'events_register' ) );
-        add_action( 'init', array( $this, 'events_category_taxonomy' ), 0 );
-        add_action( 'init', array( $this, 'events_tag_taxonomy' ), 0 );
-        add_action( 'pre_get_posts', array( $this, 'events_query' ) );
-        if ( function_exists( 'register_sidebar' ) )
+
+        // Add additional image sizes
+        if ( function_exists( 'add_image_size' ) )
+        {
+            // additional image sizes
+            // TODO: Make these sizes user configurable in the plugin settings
+            add_image_size( 'podcast-thumb', 98, 98 );
+            add_image_size( 'podcast-small', 124, 124 );
+            add_image_size( 'podcast', 220, 220 );
+            // iTunes prefers square .jpg images that are at least 1400 x 1400 pixels
+            add_image_size( 'itunes-cover', 1400, 1400, TRUE );
+        }
+
+        add_action( 'init', array( $this, 'register_podcasting_post_type' ) );
+        add_action( 'init', array( $this, 'register_speaker_taxonomy' ), 0 );
+        add_action( 'init', array( $this, 'register_series_taxonomy' ), 0 );
+        add_action( 'init', array( $this, 'register_tag_taxonomy' ), 0 );
+        //add_action( 'pre_get_posts', array( $this, 'events_query' ) );
+        /*if ( function_exists( 'register_sidebar' ) )
         {
             add_action( 'widgets_init', array( $this, 'events_widget_areas_init' ) );
         }
@@ -311,31 +325,187 @@ class NDS_WP_Podcasting
     }
 
     /**
-     * NOTE:  Actions are points in the execution of a page or process
-     *        lifecycle that WordPress fires.
-     *
-     *        WordPress Actions: http://codex.wordpress.org/Plugin_API#Actions
-     *        Action Reference:  http://codex.wordpress.org/Plugin_API/Action_Reference
+     * Create a Podcast Post Type
      *
      * @since    1.0.0
      */
-    public function action_method_name()
+    public function register_podcasting_post_type()
     {
-        // TODO: Define your action hook callback here
+
+        $labels = array(
+            'name'               => _x( 'Podcast Episodes', 'post type general name' ),
+            'singular_name'      => _x( 'Episode', 'post type singular name' ),
+            'menu_name'          => __( 'Podcast' ),
+            'add_new'            => _x( 'Add New', 'episode' ),
+            'add_new_item'       => __( 'Add New Episode' ),
+            'edit_item'          => __( 'Edit Episode' ),
+            'new_item'           => __( 'New Episode' ),
+            'all_items'          => __( 'All Episodes' ),
+            'view_item'          => __( 'View Episode' ),
+            'search_items'       => __( 'Search Podcast Episodes' ),
+            'not_found'          => __( 'Nothing found' ),
+            'not_found_in_trash' => __( 'Nothing found in Trash' ),
+            'parent_item_colon'  => ''
+        );
+
+        $args = array(
+            'labels'             => $labels,
+            'public'             => TRUE,
+            'publicly_queryable' => TRUE,
+            'show_ui'            => TRUE,
+            'show_in_nav_menus'  => FALSE,
+            'query_var'          => TRUE,
+            'rewrite'            => array( "slug" => "podcast" ), // Permalinks format
+            'capability_type'    => 'post',
+            'hierarchical'       => FALSE,
+            'menu_position'      => NULL,
+            'menu_icon'          => NULL,
+            'has_archive'        => TRUE,
+            'supports'           => array( 'title', 'editor', 'thumbnail' ),
+            'taxonomies'         => array(
+                $this->plugin_post_type . '_speaker',
+                $this->plugin_post_type . '_series',
+                $this->plugin_post_type . '_tag'
+            )
+        );
+
+        register_post_type( $this->plugin_post_type, $args );
     }
 
     /**
-     * NOTE:  Filters are points of execution in which WordPress modifies data
-     *        before saving it or sending it to the browser.
-     *
-     *        WordPress Filters: http://codex.wordpress.org/Plugin_API#Filters
-     *        Filter Reference:  http://codex.wordpress.org/Plugin_API/Filter_Reference
+     * Setup custom Speakers category for Podcast.
      *
      * @since    1.0.0
      */
-    public function filter_method_name()
+    function register_speaker_taxonomy()
     {
-        // TODO: Define your filter hook callback here
+
+        $labels = array(
+            'name'                       => _x( 'Speakers', 'taxonomy general name' ),
+            'singular_name'              => _x( 'Speaker', 'taxonomy singular name' ),
+            'search_items'               => __( 'Search Speakers' ),
+            'popular_items'              => __( 'Popular Speakers' ),
+            'all_items'                  => __( 'All Speakers' ),
+            'parent_item'                => NULL,
+            'parent_item_colon'          => NULL,
+            'edit_item'                  => __( 'Edit Speaker' ),
+            'update_item'                => __( 'Update Speaker' ),
+            'add_new_item'               => __( 'Add New Speaker' ),
+            'new_item_name'              => __( 'New Speaker Name' ),
+            'separate_items_with_commas' => __( 'Separate speakers with commas' ),
+            'add_or_remove_items'        => __( 'Add or remove speakers' ),
+            'choose_from_most_used'      => __( 'Choose from the most used speakers' )
+        );
+
+        register_taxonomy(
+            $this->plugin_post_type . '_speaker',
+            NULL,
+            array(
+                 'label'             => __( 'Podcast Speaker' ),
+                 'labels'            => $labels,
+                 'show_ui'           => TRUE,
+                 'show_in_nav_menus' => FALSE,
+                 'query_var'         => TRUE,
+                 'rewrite'           => array( 'slug' => 'podcast-speaker' ),
+                 'hierarchical'      => TRUE
+            )
+        );
+    }
+
+    /**
+     * Setup custom Series category for Podcast.
+     *
+     * @since    1.0.0
+     */
+    public function register_series_taxonomy()
+    {
+
+        $labels = array(
+            'name'                       => _x( 'Series', 'taxonomy general name' ),
+            'singular_name'              => _x( 'Series', 'taxonomy singular name' ),
+            'search_items'               => __( 'Search Series' ),
+            'popular_items'              => __( 'Popular Series' ),
+            'all_items'                  => __( 'All Series' ),
+            'parent_item'                => NULL,
+            'parent_item_colon'          => NULL,
+            'edit_item'                  => __( 'Edit Series' ),
+            'update_item'                => __( 'Update Series' ),
+            'add_new_item'               => __( 'Add New Series' ),
+            'new_item_name'              => __( 'New Series Name' ),
+            'separate_items_with_commas' => __( 'Separate series with commas' ),
+            'add_or_remove_items'        => __( 'Add or remove series' ),
+            'choose_from_most_used'      => __( 'Choose from the most used series' )
+        );
+
+        register_taxonomy(
+            $this->plugin_post_type . '_series',
+            NULL,
+            array(
+                 'label'             => __( 'Podcast Series' ),
+                 'labels'            => $labels,
+                 'show_ui'           => TRUE,
+                 'show_in_nav_menus' => FALSE,
+                 'query_var'         => TRUE,
+                 'rewrite'           => array( 'slug' => 'podcast-series' ),
+                 'hierarchical'      => TRUE
+            )
+        );
+    }
+
+    /**
+     * Setup custom tags for Podcasting.
+     *
+     * @since    1.0.0
+     */
+    public function register_tag_taxonomy()
+    {
+
+        $labels = array(
+            'name'                       => _x( 'Podcast Tags', 'taxonomy general name' ),
+            'singular_name'              => _x( 'Podcast Tag', 'taxonomy singular name' ),
+            'menu_name'                  => __( 'Tags' ),
+            'search_items'               => __( 'Search Podcast Tags' ),
+            'popular_items'              => __( 'Popular Podcast Tags' ),
+            'all_items'                  => __( 'All Podcast Tags' ),
+            'parent_item'                => NULL,
+            'parent_item_colon'          => NULL,
+            'edit_item'                  => __( 'Edit Podcast Tag' ),
+            'update_item'                => __( 'Update Podcast Tag' ),
+            'add_new_item'               => __( 'Add New Podcast Tag' ),
+            'new_item_name'              => __( 'New Podcast Tag Name' ),
+            'separate_items_with_commas' => __( 'Separate podcast tags with commas' ),
+            'add_or_remove_items'        => __( 'Add or remove podcast tags' ),
+            'choose_from_most_used'      => __( 'Choose from the most used podcast tags' )
+        );
+
+        register_taxonomy(
+            $this->plugin_post_type . '_tag',
+            NULL,
+            array(
+                 'label'             => __( 'Podcast Tag' ),
+                 'labels'            => $labels,
+                 'show_ui'           => TRUE,
+                 'show_tagcloud'     => TRUE,
+                 'show_in_nav_menus' => FALSE,
+                 'query_var'         => TRUE,
+                 'rewrite'           => array( 'slug' => 'podcast-tag' ),
+                 'hierarchical'      => FALSE
+            )
+        );
+    }
+
+    /**
+     * Setup Podcast custom type with enclosure support
+     *
+     * @since    1.0.0
+     */
+    public function podcasting_do_enclose( $id )
+    {
+        $post = get_post( $id );
+        if ( $post->post_type == $this->plugin_post_type )
+        {
+            do_enclose( $post->post_content, $id );
+        }
     }
 
 }
