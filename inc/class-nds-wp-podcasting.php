@@ -51,7 +51,7 @@ class NDS_WP_Podcasting
      *
      * @var     string
      */
-    protected $plugin_post_type = 'nds_wp_podcasting';
+    protected $plugin_post_type = 'nds_wp_podcast';
 
     /**
      * Instance of this class.
