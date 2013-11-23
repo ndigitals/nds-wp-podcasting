@@ -335,7 +335,7 @@ class NDS_WP_Podcasting
         $labels = array(
             'name'               => _x( 'Podcast Episodes', 'post type general name' ),
             'singular_name'      => _x( 'Episode', 'post type singular name' ),
-            'menu_name'          => __( 'Podcast' ),
+            'menu_name'          => __( 'Podcasting' ),
             'add_new'            => _x( 'Add New', 'episode' ),
             'add_new_item'       => __( 'Add New Episode' ),
             'edit_item'          => __( 'Edit Episode' ),
