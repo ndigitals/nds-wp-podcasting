@@ -21,10 +21,16 @@ class NDS_WP_Podcasting_Episodes_Widget extends WP_Widget
      */
     function __construct()
     {
+
+        // Call $plugin_slug from initial plugin class.
+        $plugin                 = NDS_WP_Podcasting::get_instance();
+        $this->plugin_slug      = $plugin->get_plugin_slug();
+        $this->plugin_post_type = $plugin->get_plugin_post_type();
+
         parent::__construct(
-            'daybreak_podcast_episode_widget', // Base ID
-            'Podcast Episode', // Name
-            array( 'description' => __( 'Podcast Episode Widget', 'text_domain' ), ) // Args
+              $this->plugin_slug . '_episode_widget', // Base ID
+              'Podcast Episode', // Name
+              array( 'description' => __( 'Podcast Episode Widget', 'text_domain' ), ) // Args
         );
     }
 
@@ -94,4 +100,4 @@ class NDS_WP_Podcasting_Episodes_Widget extends WP_Widget
         return $instance;
     }
 
-} // class Daybreak_Podcast_Episode_Widget
+} // class NDS_WP_Podcasting_Episodes_Widget
