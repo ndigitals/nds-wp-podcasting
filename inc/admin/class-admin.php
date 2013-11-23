@@ -63,16 +63,16 @@ class NDS_WP_Podcasting_Admin
         // Define custom functionality. Read more about actions and filters: http://codex.wordpress.org/Plugin_API#Hooks.2C_Actions_and_Filters
         add_action( 'admin_head', array( $this, 'icons_styles' ) );
         add_action( 'post_updated', array( $this, 'podcasting_do_enclose' ) );
-        add_filter( 'manage_daybreak_podcast_posts_columns', array( $this, 'daybreak_podcast_edit_columns' ) );
-        add_action( 'manage_posts_custom_column', array( $this, 'daybreak_podcast_custom_columns' ) );
-        add_filter( 'manage_edit-daybreak_podcast_sortable_columns', array( $this, 'daybreak_podcast_column_register_sortable' ) );
-        add_action( 'restrict_manage_posts', array( $this, 'daybreak_podcast_series_filter_list' ) );
-        add_action( 'restrict_manage_posts', array( $this, 'daybreak_podcast_speaker_filter_list' ) );
-        add_filter( 'parse_query', array( $this, 'daybreak_podcast_filtering' ) );
-        add_action( 'admin_init', array( $this, 'daybreak_podcast_admin_init' ) );
-        add_action( 'save_post', array( $this, 'daybreak_save_podcast' ) );
-        add_filter( 'post_updated_messages', array( $this, 'daybreak_podcast_updated_messages' ) );
-        add_action( 'pre_get_posts', array( $this, 'daybreak_podcast_query' ) );
+        add_filter( 'manage_nds_wp_podcasting_posts_columns', array( $this, 'edit_columns' ) );
+        add_action( 'manage_posts_custom_column', array( $this, 'custom_columns' ) );
+        add_filter( 'manage_edit-nds_wp_podcasting_sortable_columns', array( $this, 'column_register_sortable' ) );
+        add_action( 'restrict_manage_posts', array( $this, 'series_filter_list' ) );
+        add_action( 'restrict_manage_posts', array( $this, 'speaker_filter_list' ) );
+        add_filter( 'parse_query', array( $this, 'podcast_filtering' ) );
+        add_action( 'admin_init', array( $this, 'podcasting_admin_init' ) );
+        add_action( 'save_post', array( $this, 'save_podcast' ) );
+        add_filter( 'post_updated_messages', array( $this, 'update_messages' ) );
+        add_action( 'pre_get_posts', array( $this, 'manage_listing_query' ) );
 
     }
 
@@ -214,20 +214,25 @@ class NDS_WP_Podcasting_Admin
     public function icons_styles()
     {
         $menu_post_type_class = '#menu-posts-' . $this->plugin_post_type;
+        $menu_icon            = NDSWP_PODCASTING_URL . 'assets/images/media-player-cast.png';
+        $page_icon            = NDSWP_PODCASTING_URL . 'assets/images/media-player-cast-32x32.png';
         ?>
-        <style type="text/css" media="screen">
-            <?php echo $menu_post_type_class; ?> .wp-menu-image {
-                background: url(<?php echo NDSWP_PODCASTING_URL, 'assets/images/media-player-cast.png'; ?>) no-repeat 6px -18px !important;
+        <style type="text/css" media="screen"><?php
+echo <<<CSS
+            {$menu_post_type_class} .wp-menu-image {
+                background: url({$menu_icon}) no-repeat 6px -18px !important;
             }
 
-            <?php echo $menu_post_type_class; ?>:hover .wp-menu-image,
-            <?php echo $menu_post_type_class; ?>.wp-has-current-submenu .wp-menu-image {
+            {$menu_post_type_class}:hover .wp-menu-image,
+            {$menu_post_type_class}.wp-has-current-submenu .wp-menu-image {
                 background-position: 6px 6px !important;
             }
 
-            #icon-edit.icon32-posts-<?php echo $this->plugin_post_type; ?> {
-                background: url(<?php echo NDSWP_PODCASTING_URL, 'assets/images/media-player-cast-32x32.png'; ?>) no-repeat;
+            #icon-edit.icon32-posts-{$this->plugin_post_type} {
+                background: url({$page_icon}) no-repeat;
             }
+CSS;
+?>
         </style>
     <?php
     }
@@ -237,7 +242,7 @@ class NDS_WP_Podcasting_Admin
      *
      * @since    1.0.0
      */
-    public function daybreak_podcast_edit_columns( $columns )
+    public function edit_columns( $columns )
     {
         $columns = array(
             "cb"                  => "<input type=\"checkbox\" />",
@@ -257,7 +262,7 @@ class NDS_WP_Podcasting_Admin
      *
      * @since    1.0.0
      */
-    public function daybreak_podcast_custom_columns( $column )
+    public function custom_columns( $column )
     {
         global $post;
         $custom = get_post_custom();
@@ -266,7 +271,7 @@ class NDS_WP_Podcasting_Admin
         {
             case "podcast_series_fmt":
                 // - show taxonomy terms -
-                $podcast_series      = get_the_terms( $post->ID, "daybreak_podcast_series" );
+                $podcast_series      = get_the_terms( $post->ID, $this->plugin_post_type . '_series' );
                 $podcast_series_html = array();
                 if ( $podcast_series )
                 {
@@ -283,7 +288,7 @@ class NDS_WP_Podcasting_Admin
                 break;
             case "podcast_speaker_fmt":
                 // - show taxonomy terms -
-                $podcast_speakers      = get_the_terms( $post->ID, "daybreak_podcast_speaker" );
+                $podcast_speakers      = get_the_terms( $post->ID, $this->plugin_post_type . '_speaker' );
                 $podcast_speakers_html = array();
                 if ( $podcast_speakers )
                 {
@@ -300,7 +305,7 @@ class NDS_WP_Podcasting_Admin
                 break;
             case "podcast_tags_fmt":
                 // - show taxonomy terms -
-                $podcast_tags      = get_the_terms( $post->ID, "daybreak_podcast_tag" );
+                $podcast_tags      = get_the_terms( $post->ID, $this->plugin_post_type . '_tag' );
                 $podcast_tags_html = array();
                 if ( $podcast_tags )
                 {
@@ -308,7 +313,7 @@ class NDS_WP_Podcasting_Admin
                     {
                         array_push(
                             $podcast_tags_html,
-                            '<a href="edit.php?post_type=daybreak_podcast&taxonomy=daybreak_podcast_tag&term=' . $podcast_tag->slug . '">' . $podcast_tag->name . '</a>'
+                            '<a href="edit.php?post_type=' . $this->plugin_post_type . '&taxonomy=' . $this->plugin_post_type . '_tag&term=' . $podcast_tag->slug . '">' . $podcast_tag->name . '</a>'
                         );
                     }
                     echo implode( $podcast_tags_html, ", " );
@@ -327,10 +332,10 @@ class NDS_WP_Podcasting_Admin
      *
      * @since    1.0.0
      */
-    public function daybreak_podcast_column_register_sortable( $columns )
+    public function column_register_sortable( $columns )
     {
-        $columns['podcast_series_fmt']  = 'daybreak_podcast_series';
-        $columns['podcast_speaker_fmt'] = 'daybreak_podcast_speaker';
+        $columns['podcast_series_fmt']  = $this->plugin_post_type . '_series';
+        $columns['podcast_speaker_fmt'] = $this->plugin_post_type . '_speaker';
 
         return $columns;
     }
@@ -341,19 +346,20 @@ class NDS_WP_Podcasting_Admin
      *
      * @since    1.0.0
      */
-    public function daybreak_podcast_series_filter_list()
+    public function series_filter_list()
     {
-        $screen = get_current_screen();
+        $screen   = get_current_screen();
+        $taxonomy = $this->plugin_post_type . '_series';
         global $wp_query;
-        if ( is_admin() && $screen->post_type == 'daybreak_podcast' )
+        if ( is_admin() && $screen->post_type == $this->plugin_post_type )
         {
             wp_dropdown_categories(
                 array(
                      'show_option_all' => 'Show All Series',
-                     'taxonomy'        => 'daybreak_podcast_series',
-                     'name'            => 'daybreak_podcast_series',
+                     'taxonomy'        => $taxonomy,
+                     'name'            => $taxonomy,
                      'orderby'         => 'name',
-                     'selected'        => ( isset( $wp_query->query['daybreak_podcast_series'] ) ? $wp_query->query['daybreak_podcast_series'] : '' ),
+                     'selected'        => ( isset( $wp_query->query[$taxonomy] ) ? $wp_query->query[$taxonomy] : '' ),
                      'hierarchical'    => TRUE,
                      'depth'           => 3,
                      'show_count'      => TRUE,
@@ -369,19 +375,20 @@ class NDS_WP_Podcasting_Admin
      *
      * @since    1.0.0
      */
-    public function daybreak_podcast_speaker_filter_list()
+    public function speaker_filter_list()
     {
-        $screen = get_current_screen();
+        $screen   = get_current_screen();
+        $taxonomy = $this->plugin_post_type . '_speaker';
         global $wp_query;
-        if ( is_admin() && $screen->post_type == 'daybreak_podcast' )
+        if ( is_admin() && $screen->post_type == $this->plugin_post_type )
         {
             wp_dropdown_categories(
                 array(
                      'show_option_all' => 'Show All Speakers',
-                     'taxonomy'        => 'daybreak_podcast_speaker',
-                     'name'            => 'daybreak_podcast_speaker',
+                     'taxonomy'        => $taxonomy,
+                     'name'            => $taxonomy,
                      'orderby'         => 'name',
-                     'selected'        => ( isset( $wp_query->query['daybreak_podcast_speaker'] ) ? $wp_query->query['daybreak_podcast_speaker'] : '' ),
+                     'selected'        => ( isset( $wp_query->query[$taxonomy] ) ? $wp_query->query[$taxonomy] : '' ),
                      'hierarchical'    => TRUE,
                      'depth'           => 3,
                      'show_count'      => TRUE,
@@ -397,27 +404,33 @@ class NDS_WP_Podcasting_Admin
      *
      * @since    1.0.0
      */
-    public function daybreak_podcast_filtering( $query )
+    public function podcast_filtering( $query )
     {
         $query_vars = & $query->query_vars;
 
-        if ( ( $query_vars['daybreak_podcast_series'] ) && is_numeric( $query_vars['daybreak_podcast_series'] ) )
+        if ( ( $query_vars[$this->plugin_post_type . '_series'] ) && is_numeric(
+                $query_vars[$this->plugin_post_type . '_series']
+            )
+        )
         {
-            $term                                  = get_term_by(
+            $term                                            = get_term_by(
                 'id',
-                $query_vars['daybreak_podcast_series'],
-                'daybreak_podcast_series'
+                $query_vars[$this->plugin_post_type . '_series'],
+                $this->plugin_post_type . '_series'
             );
-            $query_vars['daybreak_podcast_series'] = $term->slug;
+            $query_vars[$this->plugin_post_type . '_series'] = $term->slug;
         }
-        if ( ( $query_vars['daybreak_podcast_speaker'] ) && is_numeric( $query_vars['daybreak_podcast_speaker'] ) )
+        if ( ( $query_vars[$this->plugin_post_type . '_speaker'] ) && is_numeric(
+                $query_vars[$this->plugin_post_type . '_speaker']
+            )
+        )
         {
-            $term                                   = get_term_by(
+            $term                                             = get_term_by(
                 'id',
-                $query_vars['daybreak_podcast_speaker'],
-                'daybreak_podcast_speaker'
+                $query_vars[$this->plugin_post_type . '_speaker'],
+                $this->plugin_post_type . '_speaker'
             );
-            $query_vars['daybreak_podcast_speaker'] = $term->slug;
+            $query_vars[$this->plugin_post_type . '_speaker'] = $term->slug;
         }
     }
 
@@ -427,63 +440,73 @@ class NDS_WP_Podcasting_Admin
      *
      * @since    1.0.0
      */
-    public function daybreak_podcast_details_meta()
+    public function post_type_metabox()
     {
         $add_audio_title = 'Add Audio';
+        $css_meta_class  = $this->plugin_slug . '-meta';
         ?>
-        <input type="hidden" name="daybreak-podcast-nonce" id="daybreak-podcast-nonce"
-               value="<?php echo wp_create_nonce( 'daybreak-podcast-nonce' ); ?>"/>
-        <ul class="daybreak-podcast-meta clearfix">
+        <input type="hidden" name="<?php echo $this->plugin_post_type ?>_nonce" id="<?php echo $this->plugin_slug ?>-nonce"
+               value="<?php echo wp_create_nonce( $this->plugin_slug . '-nonce' ); ?>"/>
+        <ul class="<?php echo $css_meta_class ?> clearfix">
             <li class="clearfix">
                 <label>Audio URL: </label>
-                <input type="text" size="70" name="daybreak_podcast_audio" id="daybreak_podcast_audio"
-                       value="<?php echo get_podcast_field( "daybreak_podcast_audio" ); ?>"/>
-                <a href="#" id="podcast_upload_audio_button" class="button"
+                <input type="text" size="70" name="<?php echo $this->plugin_post_type ?>_audio" id="<?php echo $this->plugin_slug ?>-audio"
+                       value="<?php echo get_podcast_field( $this->plugin_post_type . '_audio' ); ?>"/>
+                <a href="#" id="<?php echo $this->plugin_slug ?>-upload-audio-button" class="button"
                    title="<?php esc_html_e( $add_audio_title ); ?>"><?php esc_html_e( $add_audio_title ); ?></a>
             </li>
             <li class="clearfix">
                 <label>Video Embed URL: </label>
-                <input type="text" size="70" name="daybreak_podcast_video" id="daybreak_podcast_video"
-                       value="<?php echo get_podcast_field( "daybreak_podcast_video" ); ?>"/> <em>(optional)</em>
+                <input type="text" size="70" name="<?php echo $this->plugin_post_type ?>_video" id="<?php echo $this->plugin_slug ?>-video"
+                       value="<?php echo get_podcast_field( $this->plugin_post_type . '_video' ); ?>"/>
+                <em>(optional)</em>
             </li>
             <li class="clearfix">
                 <label>Notes URL: </label>
-                <input type="text" size="70" name="daybreak_podcast_notes" id="daybreak_podcast_notes"
-                       value="<?php echo get_podcast_field( "daybreak_podcast_notes" ); ?>"/> <em>(optional)</em>
+                <input type="text" size="70" name="<?php echo $this->plugin_post_type ?>_notes" id="<?php echo $this->plugin_slug ?>-notes"
+                       value="<?php echo get_podcast_field( $this->plugin_post_type . '_notes' ); ?>"/>
+                <em>(optional)</em>
             </li>
         </ul>
-        <style type="text/css">
-            .daybreak-podcast-meta {
-                margin: 0 0 24px;
+        <style type="text/css"><?php
+echo <<<CSS
+            .{$css_meta_class} {
+                margin: 0 0 24px
+            ;
             }
 
-            .daybreak-podcast-meta li {
+            .{$css_meta_class} li {
                 clear: left;
                 vertical-align: middle;
             }
 
-            .daybreak-podcast-meta label, .daybreak-podcast-meta input, .daybreak-podcast-meta em {
+            .{$css_meta_class} label,
+            .{$css_meta_class} label,
+            .{$css_meta_class} em {
                 float: left;
             }
 
-            .daybreak-podcast-meta label, .daybreak-podcast-meta em {
+            .{$css_meta_class} label,
+            .{$css_meta_class} em {
                 width: 120px;
                 padding: 5px 0 0 0;
             }
 
-            .daybreak-podcast-meta input {
+            .{$css_meta_class} input {
                 margin-right: 4px;
             }
 
-            .daybreak-podcast-meta em {
+            .{$css_meta_class} em {
                 color: gray;
             }
+CSS;
+?>
         </style>
         <script type="text/javascript">
             jQuery(document).ready(function ($) {
                 var custom_uploader;
 
-                $('#podcast_upload_audio_button').click(function (e) {
+                $('#<?php echo $this->plugin_slug ?>-upload-audio-button').click(function (e) {
 
                     e.preventDefault();
 
@@ -504,7 +527,7 @@ class NDS_WP_Podcasting_Admin
                     //When a file is selected, grab the URL and set it as the text field's value
                     custom_uploader.on('select', function () {
                         attachment = custom_uploader.state().get('selection').first().toJSON();
-                        $('#daybreak_podcast_audio').val(attachment.url);
+                        $('#<?php echo $this->plugin_slug ?>-audio').val(attachment.url);
                     });
 
                     //Open the uploader dialog
@@ -516,15 +539,15 @@ class NDS_WP_Podcasting_Admin
     <?php
     }
 
-    public function daybreak_podcast_admin_init()
+    public function podcasting_admin_init()
     {
         add_meta_box(
-            "podcast_meta",
-            "Podcast Details",
-            "daybreak_podcast_details_meta",
-            "daybreak_podcast",
-            "normal",
-            "high"
+            'podcast_meta',
+            'Podcast Details',
+            array( $this, 'post_type_metabox' ),
+            $this->plugin_post_type,
+            'normal',
+            'high'
         );
     }
 
@@ -534,12 +557,12 @@ class NDS_WP_Podcasting_Admin
      *
      * @since    1.0.0
      */
-    public function daybreak_save_podcast()
+    public function save_podcast()
     {
         global $post;
 
         // - still require nonce
-        if ( !wp_verify_nonce( $_POST['daybreak-podcast-nonce'], 'daybreak-podcast-nonce' ) )
+        if ( !wp_verify_nonce( $_POST[$this->plugin_post_type . '_nonce'], $this->plugin_slug . '-nonce' ) )
         {
             return $post->ID;
         }
@@ -549,30 +572,30 @@ class NDS_WP_Podcasting_Admin
             return $post->ID;
         }
 
-        if ( isset( $_POST["daybreak_podcast_audio"] ) )
+        if ( isset( $_POST[$this->plugin_post_type . '_audio'] ) )
         {
             update_post_meta(
                 $post->ID,
-                "daybreak_podcast_audio",
-                sanitize_text_field( $_POST["daybreak_podcast_audio"] )
+                $this->plugin_post_type . '_audio',
+                sanitize_text_field( $_POST[$this->plugin_post_type . '_audio'] )
             );
         }
 
-        if ( isset( $_POST["daybreak_podcast_video"] ) )
+        if ( isset( $_POST[$this->plugin_post_type . '_video'] ) )
         {
             update_post_meta(
                 $post->ID,
-                "daybreak_podcast_video",
-                sanitize_text_field( $_POST["daybreak_podcast_video"] )
+                $this->plugin_post_type . '_video',
+                sanitize_text_field( $_POST[$this->plugin_post_type . '_video'] )
             );
         }
 
-        if ( isset( $_POST["daybreak_podcast_notes"] ) )
+        if ( isset( $_POST[$this->plugin_post_type . '_notes'] ) )
         {
             update_post_meta(
                 $post->ID,
-                "daybreak_podcast_notes",
-                sanitize_text_field( $_POST["daybreak_podcast_notes"] )
+                $this->plugin_post_type . '_notes',
+                sanitize_text_field( $_POST[$this->plugin_post_type . '_notes'] )
             );
         }
     }
@@ -583,11 +606,11 @@ class NDS_WP_Podcasting_Admin
      *
      * @since    1.0.0
      */
-    public function daybreak_podcast_updated_messages( $messages )
+    public function update_messages( $messages )
     {
         global $post, $post_ID;
 
-        $messages['daybreak_podcast'] = array(
+        $messages[$this->plugin_post_type] = array(
             0  => '', // Unused. Messages start at index 1.
             1  => sprintf(
                 __( 'Podcast episode updated. <a href="%s">View item</a>' ),
@@ -635,7 +658,7 @@ class NDS_WP_Podcasting_Admin
      *
      * @param object $query data
      */
-    public function daybreak_podcast_query( $query )
+    public function manage_listing_query( $query )
     {
         // http://codex.wordpress.org/Function_Reference/current_time
         // $current_time = current_time( 'timestamp' );
@@ -643,27 +666,11 @@ class NDS_WP_Podcasting_Admin
         global $wp_the_query;
 
         // Admin Listing
-        if ( $wp_the_query === $query && is_admin() && is_post_type_archive( 'daybreak_podcast' ) )
+        if ( $wp_the_query === $query && is_admin() && is_post_type_archive( $this->plugin_post_type ) )
         {
             $query->set( 'orderby', 'date' );
             $query->set( 'order', 'DESC' );
         }
-
-        // Non-Admin Listing
-        /*if ( $wp_the_query === $query && !is_admin() && is_post_type_archive( 'daybreak_podcast' ) ) {
-    		$meta_query = array(
-    			array(
-    				'key' => 'daybreak_event_end_date',
-    				'value' => $current_time,
-    				'compare' => '>'
-    			)
-    		);
-    		$query->set( 'meta_query', $meta_query );
-    		$query->set( 'orderby', 'meta_value_num' );
-    		$query->set( 'meta_key', 'daybreak_event_start_date' );
-    		$query->set( 'order', 'ASC' );
-    	}*/
-
     }
 
 }
