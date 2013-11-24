@@ -98,12 +98,12 @@ class NDS_WP_Podcasting
         add_action( 'init', array( $this, 'register_speaker_taxonomy' ), 0 );
         add_action( 'init', array( $this, 'register_series_taxonomy' ), 0 );
         add_action( 'init', array( $this, 'register_tag_taxonomy' ), 0 );
-        //add_action( 'pre_get_posts', array( $this, 'events_query' ) );
-        /*if ( function_exists( 'register_sidebar' ) )
+        //        add_action( 'pre_get_posts', array( $this, 'frontend_listing_query' ) );
+        if ( function_exists( 'register_sidebar' ) )
         {
-            add_action( 'widgets_init', array( $this, 'events_widget_areas_init' ) );
+            add_action( 'widgets_init', array( $this, 'widget_areas_init' ) );
         }
-        add_action( 'widgets_init', array( $this, 'events_widgets_register' ) );*/
+        add_action( 'widgets_init', array( $this, 'register_podcasting_widgets' ) );
 
     }
 
@@ -492,6 +492,31 @@ class NDS_WP_Podcasting
                  'hierarchical'      => FALSE
             )
         );
+    }
+
+    /**
+     * Register site widget sidebars
+     */
+    public function widget_areas_init()
+    {
+        register_sidebar(
+            array(
+                 'name'          => __( 'Podcasting Sidebar', 'podcasting-sidebar' ),
+                 'id'            => 'podcasting-sidebar',
+                 'before_widget' => '<aside class="podcasting-sidebar columns-4 right clearfix">',
+                 'after_widget'  => '</aside>',
+                 'before_title'  => NULL,
+                 'after_title'   => NULL
+            )
+        );
+    }
+
+    /**
+     * Register Podcasting widgets.
+     */
+    public function register_podcasting_widgets()
+    {
+        register_widget( 'NDS_WP_Podcasting_Episodes_Widget' );
     }
 
     /**

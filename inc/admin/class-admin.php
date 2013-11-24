@@ -445,26 +445,26 @@ CSS;
         $add_audio_title = 'Add Audio';
         $css_meta_class  = $this->plugin_slug . '-meta';
         ?>
-        <input type="hidden" name="<?php echo $this->plugin_post_type ?>_nonce" id="<?php echo $this->plugin_slug ?>-nonce"
+        <input type="hidden" name="<?php echo $this->plugin_post_type; ?>_nonce" id="<?php echo $this->plugin_slug; ?>-nonce"
                value="<?php echo wp_create_nonce( $this->plugin_slug . '-nonce' ); ?>"/>
         <ul class="<?php echo $css_meta_class ?> clearfix">
             <li class="clearfix">
                 <label>Audio URL: </label>
-                <input type="text" size="70" name="<?php echo $this->plugin_post_type ?>_audio" id="<?php echo $this->plugin_slug ?>-audio"
-                       value="<?php echo get_podcast_field( $this->plugin_post_type . '_audio' ); ?>"/>
-                <a href="#" id="<?php echo $this->plugin_slug ?>-upload-audio-button" class="button"
+                <input type="text" size="70" name="<?php echo $this->plugin_post_type; ?>_audio" id="<?php echo $this->plugin_slug; ?>-audio"
+                       value="<?php echo $this->get_podcast_field( $this->plugin_post_type . '_audio' ); ?>"/>
+                <a href="#" id="<?php echo $this->plugin_slug; ?>-upload-audio-button" class="button"
                    title="<?php esc_html_e( $add_audio_title ); ?>"><?php esc_html_e( $add_audio_title ); ?></a>
             </li>
             <li class="clearfix">
                 <label>Video Embed URL: </label>
-                <input type="text" size="70" name="<?php echo $this->plugin_post_type ?>_video" id="<?php echo $this->plugin_slug ?>-video"
-                       value="<?php echo get_podcast_field( $this->plugin_post_type . '_video' ); ?>"/>
+                <input type="text" size="70" name="<?php echo $this->plugin_post_type; ?>_video" id="<?php echo $this->plugin_slug; ?>-video"
+                       value="<?php echo $this->get_podcast_field( $this->plugin_post_type . '_video' ); ?>"/>
                 <em>(optional)</em>
             </li>
             <li class="clearfix">
                 <label>Notes URL: </label>
-                <input type="text" size="70" name="<?php echo $this->plugin_post_type ?>_notes" id="<?php echo $this->plugin_slug ?>-notes"
-                       value="<?php echo get_podcast_field( $this->plugin_post_type . '_notes' ); ?>"/>
+                <input type="text" size="70" name="<?php echo $this->plugin_post_type; ?>_notes" id="<?php echo $this->plugin_slug; ?>-notes"
+                       value="<?php echo $this->get_podcast_field( $this->plugin_post_type . '_notes' ); ?>"/>
                 <em>(optional)</em>
             </li>
         </ul>
@@ -670,6 +670,26 @@ CSS;
         {
             $query->set( 'orderby', 'date' );
             $query->set( 'order', 'DESC' );
+        }
+    }
+
+    /**
+     * Podcast field helper method.
+     *
+     * @since    1.0.0
+     *
+     * @param string $podcast_field
+     */
+    private function get_podcast_field( $podcast_field )
+    {
+        global $post;
+
+        $custom = get_post_custom( $post->ID );
+
+        if ( isset( $custom[$podcast_field] ) )
+        {
+
+            return $custom[$podcast_field][0];
         }
     }
 
