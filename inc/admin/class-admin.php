@@ -551,7 +551,6 @@ CSS;
         );
     }
 
-
     /**
      * Save Podcast meta box data.
      *
@@ -600,6 +599,19 @@ CSS;
         }
     }
 
+    /**
+     * Setup Podcast custom type with enclosure support
+     *
+     * @since    1.0.0
+     */
+    public function podcasting_do_enclose( $id )
+    {
+        $post = get_post( $id );
+        if ( $post->post_type == $this->plugin_post_type )
+        {
+            do_enclose( $post->post_content, $id );
+        }
+    }
 
     /**
      * Setup nice admin ui messages.

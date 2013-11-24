@@ -519,18 +519,4 @@ class NDS_WP_Podcasting
         register_widget( 'NDS_WP_Podcasting_Episodes_Widget' );
     }
 
-    /**
-     * Setup Podcast custom type with enclosure support
-     *
-     * @since    1.0.0
-     */
-    public function podcasting_do_enclose( $id )
-    {
-        $post = get_post( $id );
-        if ( $post->post_type == $this->plugin_post_type )
-        {
-            do_enclose( $post->post_content, $id );
-        }
-    }
-
 }
