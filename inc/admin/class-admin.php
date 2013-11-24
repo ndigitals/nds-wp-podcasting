@@ -63,9 +63,9 @@ class NDS_WP_Podcasting_Admin
         // Define custom functionality. Read more about actions and filters: http://codex.wordpress.org/Plugin_API#Hooks.2C_Actions_and_Filters
         add_action( 'admin_head', array( $this, 'icons_styles' ) );
         add_action( 'post_updated', array( $this, 'podcasting_do_enclose' ) );
-        add_filter( 'manage_nds_wp_podcasting_posts_columns', array( $this, 'edit_columns' ) );
+        add_filter( 'manage_' . $this->plugin_post_type . '_posts_columns', array( $this, 'edit_columns' ) );
         add_action( 'manage_posts_custom_column', array( $this, 'custom_columns' ) );
-        add_filter( 'manage_edit-nds_wp_podcasting_sortable_columns', array( $this, 'column_register_sortable' ) );
+        add_filter( 'manage_edit-' . $this->plugin_post_type . '_sortable_columns', array( $this, 'column_register_sortable' ) );
         add_action( 'restrict_manage_posts', array( $this, 'series_filter_list' ) );
         add_action( 'restrict_manage_posts', array( $this, 'speaker_filter_list' ) );
         add_filter( 'parse_query', array( $this, 'podcast_filtering' ) );
@@ -245,12 +245,12 @@ CSS;
     public function edit_columns( $columns )
     {
         $columns = array(
-            "cb"                  => "<input type=\"checkbox\" />",
-            "title"               => "Title",
-            "podcast_series_fmt"  => "Series",
-            "podcast_speaker_fmt" => "Speaker",
-            "podcast_tags_fmt"    => "Tags",
-            "date"                => "Date"
+            "cb"                                     => "<input type=\"checkbox\" />",
+            "title"                                  => "Title",
+            $this->plugin_post_type . "_series_fmt"  => "Series",
+            $this->plugin_post_type . "_speaker_fmt" => "Speaker",
+            $this->plugin_post_type . "_tags_fmt"    => "Tags",
+            "date"                                   => "Date"
         );
 
         return $columns;
@@ -269,7 +269,7 @@ CSS;
 
         switch ( $column )
         {
-            case "podcast_series_fmt":
+            case $this->plugin_post_type . "_series_fmt":
                 // - show taxonomy terms -
                 $podcast_series      = get_the_terms( $post->ID, $this->plugin_post_type . '_series' );
                 $podcast_series_html = array();
@@ -286,7 +286,7 @@ CSS;
                     _e( 'None' );
                 }
                 break;
-            case "podcast_speaker_fmt":
+            case $this->plugin_post_type . "_speaker_fmt":
                 // - show taxonomy terms -
                 $podcast_speakers      = get_the_terms( $post->ID, $this->plugin_post_type . '_speaker' );
                 $podcast_speakers_html = array();
@@ -303,7 +303,7 @@ CSS;
                     _e( 'None' );
                 }
                 break;
-            case "podcast_tags_fmt":
+            case $this->plugin_post_type . "_tags_fmt":
                 // - show taxonomy terms -
                 $podcast_tags      = get_the_terms( $post->ID, $this->plugin_post_type . '_tag' );
                 $podcast_tags_html = array();
@@ -334,8 +334,8 @@ CSS;
      */
     public function column_register_sortable( $columns )
     {
-        $columns['podcast_series_fmt']  = $this->plugin_post_type . '_series';
-        $columns['podcast_speaker_fmt'] = $this->plugin_post_type . '_speaker';
+        $columns[$this->plugin_post_type . '_series_fmt']  = $this->plugin_post_type . '_series';
+        $columns[$this->plugin_post_type . '_speaker_fmt'] = $this->plugin_post_type . '_speaker';
 
         return $columns;
     }
