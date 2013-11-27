@@ -408,7 +408,7 @@ CSS;
     {
         $query_vars = & $query->query_vars;
 
-        if ( ( $query_vars[$this->plugin_post_type . '_series'] ) && is_numeric(
+        if ( isset( $query_vars[$this->plugin_post_type . '_series'] ) && is_numeric(
                 $query_vars[$this->plugin_post_type . '_series']
             )
         )
@@ -420,7 +420,7 @@ CSS;
             );
             $query_vars[$this->plugin_post_type . '_series'] = $term->slug;
         }
-        if ( ( $query_vars[$this->plugin_post_type . '_speaker'] ) && is_numeric(
+        if ( isset( $query_vars[$this->plugin_post_type . '_speaker'] ) && is_numeric(
                 $query_vars[$this->plugin_post_type . '_speaker']
             )
         )
