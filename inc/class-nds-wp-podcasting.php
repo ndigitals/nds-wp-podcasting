@@ -442,7 +442,7 @@ class NDS_WP_Podcasting
         $tax_meta = new Tax_Meta_Class( $tax_meta_config );
 
         /**
-         * Add an image
+         * Add a speaker image field
          */
         $tax_meta->addImage(
                  $this->plugin_post_type . '_speaker_image',
@@ -491,6 +491,42 @@ class NDS_WP_Podcasting
                  'hierarchical'      => TRUE
             )
         );
+
+        /**
+         * configure taxonomy custom fields
+         */
+        $tax_meta_config = array(
+            // meta box id, unique per meta box
+            'id'             => $this->plugin_post_type . '_series_meta_box',
+            // meta box title
+            'title'          => 'Additional Options',
+            // taxonomy name, accept categories, post_tag and custom taxonomies
+            'pages'          => array( $this->plugin_post_type . '_series' ),
+            // where the meta box appear: normal (default), advanced, side; optional
+            'context'        => 'normal',
+            // list of meta fields (can be added by field arrays)
+            'fields'         => array(),
+            // Use local or hosted images (meta box images for add/remove)
+            'local_images'   => FALSE,
+            // change path if used with theme set to true, false for a plugin or anything else for a custom path(default false).
+            'use_with_theme' => FALSE
+        );
+
+        /**
+         * Initiate your taxonomy custom fields
+         */
+        $tax_meta = new Tax_Meta_Class( $tax_meta_config );
+
+        /**
+         * Add a series image field
+         */
+        $tax_meta->addImage(
+                 $this->plugin_post_type . '_series_image',
+                 array( 'name' => 'Series Image ' )
+        );
+
+        // Finish Taxonomy Extra fields Setup
+        $tax_meta->Finish();
     }
 
     /**
