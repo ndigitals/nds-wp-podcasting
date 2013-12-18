@@ -565,8 +565,14 @@ CSS;
     {
         global $post;
 
+        // Only save for this post type.
+        if ( $this->plugin_post_type != $_POST['post_type'] )
+        {
+            return;
+        }
+
         // - still require nonce
-        if ( !wp_verify_nonce( $_POST[$this->plugin_post_type . '_nonce'], $this->plugin_slug . '-nonce' ) )
+        if ( isset($_POST[$this->plugin_post_type . '_nonce']) && !wp_verify_nonce( $_POST[$this->plugin_post_type . '_nonce'], $this->plugin_slug . '-nonce' ) )
         {
             return $post->ID;
         }
