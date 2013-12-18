@@ -566,13 +566,14 @@ CSS;
         global $post;
 
         // Only save for this post type.
-        if ( $this->plugin_post_type != $_POST['post_type'] )
+        if ( $this->plugin_post_type != $post->post_type )
         {
             return;
         }
 
         // - still require nonce
-        if ( isset($_POST[$this->plugin_post_type . '_nonce']) && !wp_verify_nonce( $_POST[$this->plugin_post_type . '_nonce'], $this->plugin_slug . '-nonce' ) )
+        $post_type_nonce = $this->plugin_post_type . '_nonce';
+        if ( !wp_verify_nonce( $post->$post_type_nonce, $this->plugin_slug . '-nonce' ) )
         {
             return $post->ID;
         }
@@ -582,12 +583,13 @@ CSS;
             return $post->ID;
         }
 
-        if ( isset( $_POST[$this->plugin_post_type . '_audio'] ) )
+        $post_type_audio = $this->plugin_post_type . '_audio';
+        if ( isset( $post->$post_type_audio ) )
         {
             update_post_meta(
                 $post->ID,
                 $this->plugin_post_type . '_audio',
-                sanitize_text_field( $_POST[$this->plugin_post_type . '_audio'] )
+                sanitize_text_field( $post->$post_type_audio )
             );
         }
 
