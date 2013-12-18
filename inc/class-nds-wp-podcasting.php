@@ -337,6 +337,8 @@ class NDS_WP_Podcasting
     public function register_podcasting_post_type()
     {
 
+        global $wp_version;
+
         $labels = array(
             'name'               => _x( 'Podcast Episodes', 'post type general name' ),
             'singular_name'      => _x( 'Episode', 'post type singular name' ),
@@ -364,7 +366,7 @@ class NDS_WP_Podcasting
             'capability_type'    => 'post',
             'hierarchical'       => FALSE,
             'menu_position'      => NULL,
-            'menu_icon'          => NULL,
+            'menu_icon'          => ( ( defined( 'MP6' ) && MP6 ) || version_compare( $wp_version, '3.8', '>=' ) ) ? 'dashicons-audio' : NULL,
             'has_archive'        => TRUE,
             'supports'           => array( 'title', 'editor', 'thumbnail' ),
             'taxonomies'         => array(

@@ -44,6 +44,8 @@ class NDS_WP_Podcasting_Admin
     private function __construct()
     {
 
+        global $wp_version;
+
         // Call $plugin_slug from initial plugin class.
         $plugin                 = NDS_WP_Podcasting::get_instance();
         $this->plugin_slug      = $plugin->get_plugin_slug();
@@ -61,7 +63,10 @@ class NDS_WP_Podcasting_Admin
         add_filter( 'plugin_action_links_' . $plugin_basename, array( $this, 'add_action_links' ) );
 
         // Define custom functionality. Read more about actions and filters: http://codex.wordpress.org/Plugin_API#Hooks.2C_Actions_and_Filters
-        add_action( 'admin_head', array( $this, 'icons_styles' ) );
+        // Only target versions less than 3.8 that aren't using the MP6 admin interface
+        if ( !defined( 'MP6' ) && version_compare( $wp_version, '3.8', '<' ) ) {
+            add_action( 'admin_head', array( $this, 'icons_styles' ) );
+        }
         add_action( 'post_updated', array( $this, 'podcasting_do_enclose' ) );
         add_filter( 'manage_' . $this->plugin_post_type . '_posts_columns', array( $this, 'edit_columns' ) );
         add_action( 'manage_posts_custom_column', array( $this, 'custom_columns' ) );
