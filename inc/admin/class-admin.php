@@ -566,7 +566,7 @@ CSS;
         global $post;
 
         // Only save for this post type.
-        if ( $this->plugin_post_type != $post->post_type )
+        if ( !isset($post->post_type) || $this->plugin_post_type != $post->post_type )
         {
             return;
         }
