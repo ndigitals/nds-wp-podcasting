@@ -366,7 +366,7 @@ class NDS_WP_Podcasting
             'capability_type'    => 'post',
             'hierarchical'       => FALSE,
             'menu_position'      => NULL,
-            'menu_icon'          => ( ( defined( 'MP6' ) && MP6 ) || version_compare( $wp_version, '3.8', '>=' ) ) ? 'dashicons-audio' : NULL,
+            'menu_icon'          => ( ( defined( 'MP6' ) && MP6 ) || version_compare( $wp_version, '3.8', '>=' ) ) ? 'dashicons-rss' : NULL,
             'has_archive'        => TRUE,
             'supports'           => array( 'title', 'editor', 'thumbnail' ),
             'taxonomies'         => array(
