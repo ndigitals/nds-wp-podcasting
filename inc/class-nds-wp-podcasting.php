@@ -598,4 +598,87 @@ class NDS_WP_Podcasting
         register_widget( 'NDS_WP_Podcasting_Episodes_Widget' );
     }
 
+    /**
+     * Add iTunes specific RSS feed elements
+     */
+    public function itunes_attached_audio() {
+        global $post;
+        $itunes_keywords = array();
+        $podcast_audio = get_post_meta( $post->ID, 'nds_wp_podcast_audio', TRUE );
+
+        $attachments = get_posts( array(
+                                       'post_type' => 'attachment',
+                                       'post_mime_type' => 'audio', // if you use videos, change here
+                                       'posts_per_page' => -1,
+                                       'post_parent' => $post->ID,
+                                       'exclude' => get_post_thumbnail_id()
+                                  ) );
+
+        // use the post tags for itunes:keywords
+        $itunes_keywords_arr = get_the_tags();
+        if ( $itunes_keywords_arr ) {
+            foreach( $itunes_keywords_arr as $tag ) {
+                $itunes_keywords[] = $tag->name;
+            }
+        }
+
+        // use the post thumb for itunes:image
+        $post_thumbnail_id = get_post_thumbnail_id( $post->ID );
+        $itunes_image_arr = wp_get_attachment_image_src( $post_thumbnail_id, 'itunes-cover' );
+
+        if ( $attachments ) {
+            foreach ( $attachments as $att ) {
+                $audio_url = wp_get_attachment_url( $att->ID );
+                $parts = explode( '|', $att->post_content );
+                $headers = get_headers( $audio_url, 1 );
+                $filesize = $headers['Content-Length'];
+                ?>
+                <itunes:author><?php echo get_the_author(); ?></itunes:author>
+                <itunes:subtitle><?php echo $att->post_title; ?></itunes:subtitle>
+                <itunes:summary><?php echo $att->post_excerpt; ?></itunes:summary>
+                <itunes:image href="<?php echo $itunes_image_arr[0]; ?>" />
+                <enclosure url="<?php echo $audio_url; ?>" length="<?php echo $filesize; ?>" type="<?php echo $att->post_mime_type; ?>" />
+                <guid><?php the_permalink(); ?></guid>
+                <itunes:duration><?php echo $att->post_content; ?></itunes:duration>
+                <itunes:keywords><?php echo implode(',', $itunes_keywords); ?></itunes:keywords>
+            <?php
+            }
+        }
+    }
+
+    /**
+     * Helper function that provides a Podcast image.
+     */
+    public function get_cover_art( $post_id, $image_size = 'itunes-cover' )
+    {
+        $speaker_list = wp_get_post_terms( $post_id, 'nds_wp_podcast_speaker' );
+
+        // Check for then use images from the following sources; episode featured image -> speaker -> series
+        $podcast_image = wp_get_attachment_image_src( get_post_thumbnail_id( $post_id ), $image_size );
+        if ( !isset( $podcast_image ) || strlen( $podcast_image ) === 0 || !$podcast_image )
+        {
+            foreach ( $speaker_list as $speaker )
+            {
+                if ( function_exists( 'get_tax_meta' ) && (!isset( $podcast_image ) || !$podcast_image) )
+                {
+                    $podcast_image = get_tax_meta( $speaker->term_id, 'nds_wp_podcast_speaker_image', TRUE );
+                    $podcast_image = (isset($podcast_image['src'])) ? $podcast_image['src'] : false;
+                    if ( !isset( $podcast_image ) || strlen( $podcast_image ) === 0 || !$podcast_image )
+                    {
+                        $series_list = wp_get_post_terms( $post_id, 'nds_wp_podcast_series' );
+                        foreach ( $series_list as $series )
+                        {
+                            $podcast_image = get_tax_meta( $series->term_id, 'nds_wp_podcast_series_image', TRUE );
+                            $podcast_image = (isset($podcast_image['src'])) ? $podcast_image['src'] : false;
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+        return $podcast_image;
+    }
+
 }
