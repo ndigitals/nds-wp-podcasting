@@ -15,6 +15,15 @@
  */
 class NDS_WP_Podcasting_Episodes_Widget extends WP_Widget
 {
+    /**
+     * Widget template file name part. Should be prepended with
+     * the plugin_slug when used to find/load the widget template.
+     *
+     * @since   1.0.0
+     *
+     * @var     string
+     */
+    protected $template_filename_base = 'episodes-widget';
 
     /**
      * Register widget with WordPress.
@@ -26,6 +35,8 @@ class NDS_WP_Podcasting_Episodes_Widget extends WP_Widget
         $plugin                 = NDS_WP_Podcasting::get_instance();
         $this->plugin_slug      = $plugin->get_plugin_slug();
         $this->plugin_post_type = $plugin->get_plugin_post_type();
+        // Defining a class attribute for the widget template filename
+        $this->widget_template  = $this->plugin_slug . '-' .$this->template_filename_base . '.php';
 
         parent::__construct(
               $this->plugin_slug . '_episode_widget', // Base ID
@@ -51,7 +62,36 @@ class NDS_WP_Podcasting_Episodes_Widget extends WP_Widget
         {
             echo $args['before_title'] . $title . $args['after_title'];
         }
-        echo __( 'Hello, World!', 'text_domain' );
+
+        $query = NDS_WP_Podcasting::get_latest_episode();
+
+        $date_format = get_option( 'date_format' );
+        $podcast_series = get_the_term_list( $post->ID, 'nds_wp_podcast_series' );
+        $speaker_list = wp_get_post_terms( $post->ID, 'nds_wp_podcast_speaker' );
+        $podcast_audio = get_post_meta( $post->ID, 'nds_wp_podcast_audio', TRUE );
+        $podcast_video = get_post_meta( $post->ID, 'nds_wp_podcast_video', TRUE );
+        $podcast_notes = get_post_meta( $post->ID, 'nds_wp_podcast_notes', TRUE );
+        // Check for, then use, images from the following sources; episode featured image -> speaker -> series
+        $podcast_image = NDS_WP_Podcasting::get_episode_image( $post->ID, 'podcast' );
+        if (!$podcast_image)
+        {
+            $podcast_image = NDS_WP_Podcasting::get_speaker_image( $post->ID, 'podcast' );
+            if (!$podcast_image)
+            {
+                $podcast_image = NDS_WP_Podcasting::get_series_image( $post->ID, 'podcast' );
+            }
+        }
+
+        if ( $overridden_template = locate_template( $this->widget_template ) ) {
+            // locate_template() returns path to file
+            // if either the child theme or the parent theme have overridden the template
+            load_template( $overridden_template );
+        } else {
+            // If neither the child nor parent theme have overridden the template,
+            // we load the template from the 'templates' sub-directory of the plugin directory
+            load_template( NDSWP_PODCASTING_PATH . 'templates/' . $this->widget_template );
+        }
+
         echo $args['after_widget'];
     }
 

@@ -675,7 +675,29 @@ class NDS_WP_Podcasting
     }
 
     /**
+     * Helper function that returns the latest Podcast episode query results.
+     *
+     * @return WP_Query
+     */
+    public function get_latest_episode()
+    {
+        return new WP_Query(
+            array(
+                'post_type' => array( $this->plugin_post_type ),
+                'post_status' => 'publish',
+                'orderby' => 'date',
+                'order' => 'DESC'
+            )
+        );
+    }
+
+    /**
      * Helper function that provides a Podcast episode image.
+     *
+     * @param        $post_id
+     * @param string $image_size
+     *
+     * @return mixed
      */
     public function get_episode_image( $post_id, $image_size = 'itunes-cover' )
     {
@@ -684,6 +706,11 @@ class NDS_WP_Podcasting
 
     /**
      * Helper function that provides a Podcast series image.
+     *
+     * @param        $post_id
+     * @param string $image_size
+     *
+     * @return mixed
      */
     public function get_series_image( $post_id, $image_size = 'itunes-cover' )
     {
@@ -704,6 +731,11 @@ class NDS_WP_Podcasting
 
     /**
      * Helper function that provides a Podcast speaker image.
+     *
+     * @param        $post_id
+     * @param string $image_size
+     *
+     * @return mixed
      */
     public function get_speaker_image( $post_id, $image_size = 'itunes-cover' )
     {

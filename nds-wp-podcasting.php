@@ -27,7 +27,7 @@ if ( !defined( 'WPINC' ) )
 }
 
 /**
- * Define a plugin path global so we don't have to call the function
+ * Define a plugin system path global so we don't have to call the function
  */
 if ( !defined( 'NDSWP_PODCASTING_PATH' ) )
 {
