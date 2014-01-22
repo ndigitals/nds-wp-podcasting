@@ -55,7 +55,9 @@ class NDS_WP_Podcasting_Episodes_Widget extends WP_Widget
      */
     public function widget( $args, $instance )
     {
-        global $post;
+        global $post, $date_format,
+               $podcast_series, $speaker_list, $podcast_audio,
+               $podcast_video, $podcast_notes, $podcast_image;
 
         $args['post_count'] = 1; // TODO: Setup widget admin to allow users to specify this.
 
