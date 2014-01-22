@@ -55,6 +55,8 @@ class NDS_WP_Podcasting_Episodes_Widget extends WP_Widget
      */
     public function widget( $args, $instance )
     {
+        global $post;
+
         $args['post_count'] = 1; // TODO: Setup widget admin to allow users to specify this.
 
         $title = apply_filters( 'widget_title', $instance['title'] );
@@ -71,21 +73,22 @@ class NDS_WP_Podcasting_Episodes_Widget extends WP_Widget
         if ( $episodes->have_posts() )
         {
             while ( $episodes->have_posts() ) : $episodes->the_post();
+                Chromephp::log($post);
+
                 $date_format    = get_option( 'date_format' );
-                $postid = get_the_ID();
-                $podcast_series = get_the_term_list( $postid, 'nds_wp_podcast_series' );
-                $speaker_list   = wp_get_post_terms( $postid, 'nds_wp_podcast_speaker' );
-                $podcast_audio  = get_post_meta( $postid, 'nds_wp_podcast_audio', TRUE );
-                $podcast_video  = get_post_meta( $postid, 'nds_wp_podcast_video', TRUE );
-                $podcast_notes  = get_post_meta( $postid, 'nds_wp_podcast_notes', TRUE );
+                $podcast_series = get_the_term_list( $post->ID, 'nds_wp_podcast_series' );
+                $speaker_list   = wp_get_post_terms( $post->ID, 'nds_wp_podcast_speaker' );
+                $podcast_audio  = get_post_meta( $post->ID, 'nds_wp_podcast_audio', TRUE );
+                $podcast_video  = get_post_meta( $post->ID, 'nds_wp_podcast_video', TRUE );
+                $podcast_notes  = get_post_meta( $post->ID, 'nds_wp_podcast_notes', TRUE );
                 // Check for, then use, images from the following sources; episode featured image -> speaker -> series
-                $podcast_image = NDS_WP_Podcasting::get_episode_image( $postid, 'podcast' );
+                $podcast_image = NDS_WP_Podcasting::get_episode_image( $post->ID, 'podcast' );
                 if (!$podcast_image)
                 {
-                    $podcast_image = NDS_WP_Podcasting::get_speaker_image( $postid, 'podcast' );
+                    $podcast_image = NDS_WP_Podcasting::get_speaker_image( $post->ID, 'podcast' );
                     if (!$podcast_image)
                     {
-                        $podcast_image = NDS_WP_Podcasting::get_series_image( $postid, 'podcast' );
+                        $podcast_image = NDS_WP_Podcasting::get_series_image( $post->ID, 'podcast' );
                     }
                 }
 
