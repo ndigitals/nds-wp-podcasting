@@ -70,7 +70,7 @@ class NDS_WP_Podcasting_Episodes_Widget extends WP_Widget
         {
             while ( $episodes->have_posts() )
             {
-                $post = $episodes->the_post();
+                $post = $episodes->post;
                 Chromephp::log($post);
 
                 $date_format    = get_option( 'date_format' );
