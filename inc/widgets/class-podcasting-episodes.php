@@ -70,8 +70,7 @@ class NDS_WP_Podcasting_Episodes_Widget extends WP_Widget
 
         if ( $episodes->have_posts() )
         {
-            for ($n = 0;$n<$episodes->post_count;$n++) {
-                $post = $episodes->posts[$n]; // Make sure we only show 1 post for now
+            while ( $episodes->have_posts() ) : $episodes->the_post();
                 Chromephp::log($post);
 
                 $date_format    = get_option( 'date_format' );
@@ -100,7 +99,7 @@ class NDS_WP_Podcasting_Episodes_Widget extends WP_Widget
                     // we load the template from the 'templates' sub-directory of the plugin directory
                     load_template( NDSWP_PODCASTING_PATH . 'templates/' . $this->widget_template );
                 }
-            }
+            endwhile;
         }
 
         // Reset Post Data
