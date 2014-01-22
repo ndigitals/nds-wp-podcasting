@@ -19,7 +19,7 @@
     <!--<a href="#" class="img-link" title="image3"><img src="img/wes.jpg" align="left" alt="image3" width="220" height="220"/></a>-->
     <h5><?php the_title( $podcast_series . ': <span class="small-visible-inline large-hidden"><br/></span>' ); ?></h5>
     <em><?php echo get_the_term_list(
-            the_ID(),
+            $postid,
             'nds_wp_podcast_speaker',
             ''
         ); ?></em>
