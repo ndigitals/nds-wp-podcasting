@@ -675,11 +675,14 @@ class NDS_WP_Podcasting
     }
 
     /**
-     * Helper function that returns the latest Podcast episode query results.
+     * Helper function that returns the query results for the most recent given number of
+     * Podcast episodes.
+     *
+     * @param int $post_count
      *
      * @return WP_Query
      */
-    public function get_latest_episode()
+    public function get_latest_episodes($post_count = 1)
     {
         return new WP_Query(
             array(
@@ -687,7 +690,7 @@ class NDS_WP_Podcasting
                 'post_status' => 'publish',
                 'orderby'     => 'date',
                 'order'       => 'DESC',
-                'numberposts' => 1
+                'numberposts' => $post_count
             )
         );
     }

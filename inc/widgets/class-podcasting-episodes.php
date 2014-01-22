@@ -55,6 +55,8 @@ class NDS_WP_Podcasting_Episodes_Widget extends WP_Widget
      */
     public function widget( $args, $instance )
     {
+        $args['post_count'] = 1; // TODO: Setup widget admin to allow users to specify this.
+
         $title = apply_filters( 'widget_title', $instance['title'] );
 
         echo $args['before_widget'];
@@ -63,14 +65,15 @@ class NDS_WP_Podcasting_Episodes_Widget extends WP_Widget
             echo $args['before_title'] . $title . $args['after_title'];
         }
 
-        $episodes = NDS_WP_Podcasting::get_latest_episode();
+        $episodes = NDS_WP_Podcasting::get_latest_episodes($args['post_count']);
         Chromephp::log($episodes);
 
         if ( $episodes->have_posts() )
         {
-            while ( $episodes->have_posts() )
-            {
-                $post = $episodes->post;
+            for ($n = 0;$n<$episodes->found_posts;$n++) {
+                if ($n === $args['post_count'] - 1) { break; }
+
+                $post = $episodes->posts[$n]; // Make sure we only show 1 post for now
                 Chromephp::log($post);
 
                 $date_format    = get_option( 'date_format' );
