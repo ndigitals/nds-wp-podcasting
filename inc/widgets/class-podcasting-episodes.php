@@ -64,12 +64,14 @@ class NDS_WP_Podcasting_Episodes_Widget extends WP_Widget
         }
 
         $episodes = NDS_WP_Podcasting::get_latest_episode();
+        Chromephp::log($episodes);
 
         if ( $episodes->have_posts() )
         {
             while ( $episodes->have_posts() )
             {
-                $post = the_post();
+                $post = $episodes->the_post();
+                Chromephp::log($post);
 
                 $date_format    = get_option( 'date_format' );
                 $podcast_series = get_the_term_list( $post->ID, 'nds_wp_podcast_series' );
