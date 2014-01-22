@@ -5,6 +5,23 @@
  * Date: 1/18/14
  * Time: 3:03 PM
  */
+
+$date_format    = get_option( 'date_format' );
+$podcast_series = get_the_term_list( $post->ID, 'nds_wp_podcast_series' );
+$speaker_list   = wp_get_post_terms( $post->ID, 'nds_wp_podcast_speaker' );
+$podcast_audio  = get_post_meta( $post->ID, 'nds_wp_podcast_audio', TRUE );
+$podcast_video  = get_post_meta( $post->ID, 'nds_wp_podcast_video', TRUE );
+$podcast_notes  = get_post_meta( $post->ID, 'nds_wp_podcast_notes', TRUE );
+// Check for, then use, images from the following sources; episode featured image -> speaker -> series
+$podcast_image = NDS_WP_Podcasting::get_episode_image( $post->ID, 'podcast' );
+if (!$podcast_image)
+{
+    $podcast_image = NDS_WP_Podcasting::get_speaker_image( $post->ID, 'podcast' );
+    if (!$podcast_image)
+    {
+        $podcast_image = NDS_WP_Podcasting::get_series_image( $post->ID, 'podcast' );
+    }
+}
 ?>
 <section id="<?php echo $css_post_id; ?>" <?php post_class("section columns-12 left clearfix"); ?>>
     <a name="<?php echo $css_post_id; ?>"></a>
