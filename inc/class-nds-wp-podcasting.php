@@ -684,8 +684,7 @@ class NDS_WP_Podcasting
      */
     public function get_latest_episodes($post_count = 1)
     {
-        $episodes = new WP_Query();
-        $episodes->query(
+        return new WP_Query(
             array(
                 'post_type'   => array( $this->plugin_post_type ),
                 'post_status' => 'publish',
@@ -694,7 +693,6 @@ class NDS_WP_Podcasting
                 'numberposts' => $post_count
             )
         );
-        return $episodes;
     }
 
     /**
