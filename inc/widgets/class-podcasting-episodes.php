@@ -70,9 +70,7 @@ class NDS_WP_Podcasting_Episodes_Widget extends WP_Widget
 
         if ( $episodes->have_posts() )
         {
-            for ($n = 0;$n<$episodes->found_posts;$n++) {
-                if ($n === $args['post_count'] - 1) { break; }
-
+            for ($n = 0;$n<$episodes->post_count;$n++) {
                 $post = $episodes->posts[$n]; // Make sure we only show 1 post for now
                 Chromephp::log($post);
 
