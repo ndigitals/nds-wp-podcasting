@@ -86,10 +86,11 @@ if (!$podcast_image)
     .podcast-episodes-widget-links {
         clear: both;
         list-style: none;
+        margin: 0;
     }
     .podcast-episodes-widget-links li {
         float: left;
-        font-size: 2em;
-        margin: 4px;
+        font-size: 1.5em;
+        margin: 4px 8px;
     }
 </style>
