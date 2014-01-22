@@ -14,17 +14,17 @@ $podcast_audio  = get_post_meta( $post->ID, 'nds_wp_podcast_audio', TRUE );
 $podcast_video  = get_post_meta( $post->ID, 'nds_wp_podcast_video', TRUE );
 $podcast_notes  = get_post_meta( $post->ID, 'nds_wp_podcast_notes', TRUE );
 // Check for, then use, images from the following sources; episode featured image -> speaker -> series
-$podcast_image = NDS_WP_Podcasting::get_episode_image( $post->ID, 'podcast' );
+$podcast_image = NDS_WP_Podcasting::get_speaker_image( $post->ID, 'podcast-small' );
 if (!$podcast_image)
 {
-    $podcast_image = NDS_WP_Podcasting::get_speaker_image( $post->ID, 'podcast' );
+    $podcast_image = NDS_WP_Podcasting::get_episode_image( $post->ID, 'podcast-small' );
     if (!$podcast_image)
     {
-        $podcast_image = NDS_WP_Podcasting::get_series_image( $post->ID, 'podcast' );
+        $podcast_image = NDS_WP_Podcasting::get_series_image( $post->ID, 'podcast-small' );
     }
 }
 ?>
-<section id="<?php echo $css_post_id; ?>" <?php post_class("section columns-12 left clearfix"); ?>>
+<section id="<?php echo $css_post_id; ?>" <?php post_class("section columns-12 left nds_wp_podcast_widget clearfix"); ?>>
     <a name="<?php echo $css_post_id; ?>"></a>
     <?php
     if ( $podcast_image ) : ?>
@@ -79,3 +79,17 @@ if (!$podcast_image)
         <?php endif; ?>
     </ul>
 </section>
+<style>
+    .nds_wp_podcast_widget a {
+        text-decoration: none;
+    }
+    .podcast-episodes-widget-links {
+        clear: both;
+        list-style: none;
+    }
+    .podcast-episodes-widget-links li {
+        float: left;
+        font-size: 2em;
+        margin: 4px;
+    }
+</style>
