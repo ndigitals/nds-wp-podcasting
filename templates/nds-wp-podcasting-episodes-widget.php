@@ -7,6 +7,7 @@
  */
 
 $date_format    = get_option( 'date_format' );
+$css_post_id = 'post-' . $post->ID;
 $podcast_series = get_the_term_list( $post->ID, 'nds_wp_podcast_series' );
 $speaker_list   = wp_get_post_terms( $post->ID, 'nds_wp_podcast_speaker' );
 $podcast_audio  = get_post_meta( $post->ID, 'nds_wp_podcast_audio', TRUE );
