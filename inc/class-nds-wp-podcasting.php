@@ -683,10 +683,10 @@ class NDS_WP_Podcasting
     {
         return new WP_Query(
             array(
-                'post_type' => array( $this->plugin_post_type ),
-                'post_status' => 'publish',
-                'orderby' => 'date',
-                'order' => 'DESC'
+                 'post_type'      => array( $this->plugin_post_type ),
+                 'orderby'        => 'date',
+                 'order'          => 'DESC',
+                 'posts_per_page' => 1
             )
         );
     }
