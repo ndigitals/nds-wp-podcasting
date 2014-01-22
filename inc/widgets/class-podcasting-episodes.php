@@ -63,7 +63,13 @@ class NDS_WP_Podcasting_Episodes_Widget extends WP_Widget
             echo $args['before_title'] . $title . $args['after_title'];
         }
 
-        $query = NDS_WP_Podcasting::get_latest_episode();
+        $episodes = NDS_WP_Podcasting::get_latest_episode();
+
+        if($episodes->have_posts()) {
+            while($episodes->have_posts()) {
+                $post = $episodes->the_post();
+            }
+        }
 
         $date_format = get_option( 'date_format' );
         $podcast_series = get_the_term_list( $post->ID, 'nds_wp_podcast_series' );
