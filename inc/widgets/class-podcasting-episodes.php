@@ -98,6 +98,9 @@ class NDS_WP_Podcasting_Episodes_Widget extends WP_Widget
             load_template( NDSWP_PODCASTING_PATH . 'templates/' . $this->widget_template );
         }
 
+        // Reset Post Data
+        wp_reset_postdata();
+
         echo $args['after_widget'];
     }
 
