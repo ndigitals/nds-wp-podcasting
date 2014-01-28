@@ -1,4 +1,4 @@
-nds-wp-podcasting
+NDS WordPress Podcasting Plugin [![Build Status](https://travis-ci.org/timnolte/nds-wp-podcasting.png?branch=master)](https://travis-ci.org/timnolte/nds-wp-podcasting)
 =================
 
-NDS WordPress Podcasting
+A streamlined podcasting plugin that is conducive to theming.
