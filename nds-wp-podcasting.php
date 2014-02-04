@@ -53,6 +53,15 @@ if ( !defined( 'NDSWP_PODCASTING_URL' ) )
 }
 
 require_once( NDSWP_PODCASTING_PATH . 'inc/class-nds-wp-podcasting.php' );
+
+/**
+ * Include Podcast feed class.
+ */
+require_once( NDSWP_PODCASTING_PATH . 'inc/class-podcasting-feed.php' );
+
+/**
+ * Include Podcast Admin class.
+ */
 if ( is_admin() )
 {
     require_once( NDSWP_PODCASTING_PATH . 'inc/admin/class-admin.php' );
@@ -64,6 +73,7 @@ register_activation_hook( __FILE__, array( 'NDS_WP_Podcasting', 'activate' ) );
 register_deactivation_hook( __FILE__, array( 'NDS_WP_Podcasting', 'deactivate' ) );
 
 add_action( 'plugins_loaded', array( 'NDS_WP_Podcasting', 'get_instance' ) );
+add_action( 'plugins_loaded', array( 'NDS_WP_Podcasting_Feed', 'get_instance' ) );
 if ( is_admin() )
 {
     add_action( 'plugins_loaded', array( 'NDS_WP_Podcasting_Admin', 'get_instance' ) );

@@ -153,6 +153,7 @@ class NDS_WP_Podcasting
         }
 
         return self::$instance;
+
     }
 
     /**
@@ -297,6 +298,7 @@ class NDS_WP_Podcasting
 
         load_textdomain( $domain, trailingslashit( WP_LANG_DIR ) . $domain . '/' . $domain . '-' . $locale . '.mo' );
         load_plugin_textdomain( $domain, FALSE, NDSWP_PODCASTING_DIR . '/languages' );
+
     }
 
     /**
@@ -377,6 +379,7 @@ class NDS_WP_Podcasting
         );
 
         register_post_type( $this->plugin_post_type, $args );
+
     }
 
     /**
@@ -453,6 +456,7 @@ class NDS_WP_Podcasting
 
         // Finish Taxonomy Extra fields Setup
         $tax_meta->Finish();
+
     }
 
     /**
@@ -529,6 +533,7 @@ class NDS_WP_Podcasting
 
         // Finish Taxonomy Extra fields Setup
         $tax_meta->Finish();
+
     }
 
     /**
@@ -571,6 +576,7 @@ class NDS_WP_Podcasting
                  'hierarchical'      => FALSE
             )
         );
+
     }
 
     /**
@@ -596,82 +602,6 @@ class NDS_WP_Podcasting
     public function register_podcasting_widgets()
     {
         register_widget( 'NDS_WP_Podcasting_Episodes_Widget' );
-    }
-
-    /**
-     * Add iTunes Namespace
-     * add_filter( 'rss2_ns', 'itunes_namespace' );
-     */
-    public function itunes_namespace() {
-        echo 'xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"';
-    }
-
-    /**
-     * Add iTunes Header Metadata
-     * add_filter( 'rss2_head', 'itunes_head' );
-     * TODO: Setup plugins options for these values
-     */
-    public function itunes_head() {
-        ?>
-        <itunes:subtitle></itunes:subtitle>
-        <itunes:author>Daybreak Church</itunes:author>
-        <itunes:summary>Weekly messages from Pastor Wes Dupin and guest speakers.</itunes:summary>
-        <itunes:owner>
-            <itunes:name>Daybreak Church</itunes:name>
-            <itunes:email>webmaster@daybreak.tv</itunes:email>
-        </itunes:owner>
-        <itunes:image href="http://example.com/podcasts/everything/AllAboutEverything.jpg" />
-        <itunes:category text="Technology">
-            <itunes:category text="Gadgets"/>
-        </itunes:category>
-        <?php
-    }
-
-    /**
-     * Add iTunes specific RSS feed elements
-     * add_action('rss2_item', 'itunes_attached_audio' );
-     * TODO: Change item author to speaker (not sure if we need an email address).
-     */
-    public function itunes_attached_audio() {
-        global $post;
-
-        $podcast_audio = get_post_meta( $post->ID, 'nds_wp_podcast_audio', TRUE );
-
-        if ($podcast_audio)
-        {
-            // Check for then use images from the following sources; episode featured image -> series -> speaker
-            $podcast_image = $this->get_episode_image( $post->ID );
-            if (!$podcast_image)
-            {
-                $podcast_image = $this->get_series_image( $post->ID );
-                if (!$podcast_image)
-                {
-                    $podcast_image = $this->get_speaker_image( $post->ID );
-                }
-            }
-
-            // use the post tags for itunes:keywords
-            $itunes_keywords = array();
-            $itunes_keywords_arr = get_the_tags();
-            if ( $itunes_keywords_arr ) {
-                foreach( $itunes_keywords_arr as $tag ) {
-                    $itunes_keywords[] = $tag->name;
-                }
-            }
-
-            $headers = get_headers( $podcast_audio, 1 );
-            $filesize = $headers['Content-Length'];
-            ?>
-            <itunes:author><?php echo get_the_author(); ?></itunes:author>
-            <itunes:subtitle><?php echo $post->post_title; ?></itunes:subtitle>
-            <itunes:summary><?php echo $post->post_excerpt; ?></itunes:summary>
-            <itunes:image href="<?php echo $podcast_image; ?>" />
-            <enclosure url="<?php echo $podcast_audio; ?>" length="<?php echo $filesize; ?>" type="<?php echo $att->post_mime_type; ?>" />
-            <guid><?php the_permalink(); ?></guid>
-            <itunes:duration><?php echo $post->post_content; ?></itunes:duration>
-            <itunes:keywords><?php echo implode(',', $itunes_keywords); ?></itunes:keywords>
-            <?php
-        }
     }
 
     /**
