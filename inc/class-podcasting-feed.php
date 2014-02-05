@@ -66,7 +66,7 @@ class NDS_WP_Podcasting_Feed
         add_action( 'init', array( $this, 'add_podcast_feed' ) );
         add_filter( 'podcast_ns', array( $this, 'itunes_namespace' ) );
         add_filter( 'podcast_head', array( $this, 'itunes_head' ) );
-        add_action( 'podcast_item', array( $this, 'itunes_attached_audio' ) );
+        add_filter( 'podcast_item', array( $this, 'itunes_attached_audio' ) );
 
     }
 
@@ -97,32 +97,33 @@ class NDS_WP_Podcasting_Feed
      */
     public function add_podcast_feed()
     {
-        add_feed( $this->custom_feed_type, array( $this, 'get_feed_content' ) );
+        add_feed( 'feed/' . $this->custom_feed_type, array( $this, 'get_feed_content' ) );
     }
 
     /**
      * Method to return the podcast feed content in RSS 2.0 XML.
      *
+     * TODO: Need a plugin option for specifying the number of posts to include in the feed
+     *
      * @since     1.0.0
      */
     public function get_feed_content()
     {
-        // TODO: Need a plugin option for specifying the number of posts to include in the feed
-        $episodes = NDS_WP_Podcasting::get_latest_episodes(10);
+        global $posts;
+        $opt_feed_episode_count = 10;
+        $posts               = NDS_WP_Podcasting::get_latest_episodes( $opt_feed_episode_count );
 
-        if ( $episodes->have_posts() )
+        if ( $overridden_template = locate_template( $this->feed_template ) )
         {
-            while ( $episodes->have_posts() ) : $episodes->the_post();
-                if ( $overridden_template = locate_template( $this->feed_template ) ) {
-                    // locate_template() returns path to file
-                    // if either the child theme or the parent theme have overridden the template
-                    load_template( $overridden_template );
-                } else {
-                    // If neither the child nor parent theme have overridden the template,
-                    // we load the template from the 'templates' sub-directory of the plugin directory
-                    load_template( NDSWP_PODCASTING_PATH . 'templates/' . $this->feed_template );
-                }
-            endwhile;
+            // locate_template() returns path to file
+            // if either the child theme or the parent theme have overridden the template
+            load_template( $overridden_template );
+        }
+        else
+        {
+            // If neither the child nor parent theme have overridden the template,
+            // we load the template from the 'templates' sub-directory of the plugin directory
+            load_template( NDSWP_PODCASTING_PATH . 'templates/' . $this->feed_template );
         }
 
         // Reset Post Data
@@ -174,18 +175,18 @@ class NDS_WP_Podcasting_Feed
 
         global $post;
 
-        $podcast_audio = get_post_meta( $post->ID, 'nds_wp_podcast_audio', TRUE );
+        $podcast_audio = NDS_WP_Podcasting::get_podcast_field( 'nds_wp_podcast_audio' );
 
         if ( $podcast_audio )
         {
             // Check for then use images from the following sources; episode featured image -> series -> speaker
-            $podcast_image = $this->get_episode_image( $post->ID );
+            $podcast_image = NDS_WP_Podcasting::get_episode_image( $post->ID );
             if ( !$podcast_image )
             {
-                $podcast_image = $this->get_series_image( $post->ID );
+                $podcast_image = NDS_WP_Podcasting::get_series_image( $post->ID );
                 if ( !$podcast_image )
                 {
-                    $podcast_image = $this->get_speaker_image( $post->ID );
+                    $podcast_image = NDS_WP_Podcasting::get_speaker_image( $post->ID );
                 }
             }
 
@@ -206,7 +207,7 @@ class NDS_WP_Podcasting_Feed
             <itunes:author><?php echo get_the_author(); ?></itunes:author>
             <itunes:subtitle><?php echo $post->post_title; ?></itunes:subtitle>
             <itunes:summary><?php echo $post->post_excerpt; ?></itunes:summary>
-            <itunes:image href="<?php echo $podcast_image; ?>"/>
+            <itunes:image href="<?php echo $podcast_image[0]; ?>"/>
             <enclosure url="<?php echo $podcast_audio; ?>" length="<?php echo $filesize; ?>" type="<?php echo $att->post_mime_type; ?>"/>
             <guid><?php the_permalink(); ?></guid>
             <itunes:duration><?php echo $post->post_content; ?></itunes:duration>

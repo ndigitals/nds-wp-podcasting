@@ -456,20 +456,20 @@ CSS;
             <li class="clearfix">
                 <label>Audio URL: </label>
                 <input type="text" size="70" name="<?php echo $this->plugin_post_type; ?>_audio" id="<?php echo $this->plugin_slug; ?>-audio"
-                       value="<?php echo $this->get_podcast_field( $this->plugin_post_type . '_audio' ); ?>"/>
+                       value="<?php echo NDS_WP_Podcasting::get_podcast_field( $this->plugin_post_type . '_audio' ); ?>"/>
                 <a href="#" id="<?php echo $this->plugin_slug; ?>-upload-audio-button" class="button"
                    title="<?php esc_html_e( $add_audio_title ); ?>"><?php esc_html_e( $add_audio_title ); ?></a>
             </li>
             <li class="clearfix">
                 <label>Video Embed URL: </label>
                 <input type="text" size="70" name="<?php echo $this->plugin_post_type; ?>_video" id="<?php echo $this->plugin_slug; ?>-video"
-                       value="<?php echo $this->get_podcast_field( $this->plugin_post_type . '_video' ); ?>"/>
+                       value="<?php echo NDS_WP_Podcasting::get_podcast_field( $this->plugin_post_type . '_video' ); ?>"/>
                 <em>(optional)</em>
             </li>
             <li class="clearfix">
                 <label>Notes URL: </label>
                 <input type="text" size="70" name="<?php echo $this->plugin_post_type; ?>_notes" id="<?php echo $this->plugin_slug; ?>-notes"
-                       value="<?php echo $this->get_podcast_field( $this->plugin_post_type . '_notes' ); ?>"/>
+                       value="<?php echo NDS_WP_Podcasting::get_podcast_field( $this->plugin_post_type . '_notes' ); ?>"/>
                 <em>(optional)</em>
             </li>
         </ul>
@@ -573,7 +573,7 @@ CSS;
 
         // - still require nonce
         $post_type_nonce = $this->plugin_post_type . '_nonce';
-        if ( !wp_verify_nonce( $post->$post_type_nonce, $this->plugin_slug . '-nonce' ) )
+        if ( !wp_verify_nonce( $_POST[$post_type_nonce], $this->plugin_slug . '-nonce' ) )
         {
             return $post->ID;
         }
@@ -584,30 +584,32 @@ CSS;
         }
 
         $post_type_audio = $this->plugin_post_type . '_audio';
-        if ( isset( $post->$post_type_audio ) )
+        if ( isset( $_POST[$post_type_audio] ) )
         {
             update_post_meta(
                 $post->ID,
-                $this->plugin_post_type . '_audio',
-                sanitize_text_field( $post->$post_type_audio )
+                $post_type_audio,
+                sanitize_text_field( $_POST[$post_type_audio] )
             );
         }
 
-        if ( isset( $_POST[$this->plugin_post_type . '_video'] ) )
+        $post_type_video = $this->plugin_post_type . '_video';
+        if ( isset( $_POST[$post_type_video] ) )
         {
             update_post_meta(
                 $post->ID,
-                $this->plugin_post_type . '_video',
-                sanitize_text_field( $_POST[$this->plugin_post_type . '_video'] )
+                $post_type_video,
+                sanitize_text_field( $_POST[$post_type_video] )
             );
         }
 
-        if ( isset( $_POST[$this->plugin_post_type . '_notes'] ) )
+        $post_type_notes = $this->plugin_post_type . '_notes';
+        if ( isset( $_POST[$post_type_notes] ) )
         {
             update_post_meta(
                 $post->ID,
-                $this->plugin_post_type . '_notes',
-                sanitize_text_field( $_POST[$this->plugin_post_type . '_notes'] )
+                $post_type_notes,
+                sanitize_text_field( $_POST[$post_type_notes] )
             );
         }
     }
@@ -695,26 +697,6 @@ CSS;
         {
             $query->set( 'orderby', 'date' );
             $query->set( 'order', 'DESC' );
-        }
-    }
-
-    /**
-     * Podcast field helper method.
-     *
-     * @since    1.0.0
-     *
-     * @param string $podcast_field
-     */
-    private function get_podcast_field( $podcast_field )
-    {
-        global $post;
-
-        $custom = get_post_custom( $post->ID );
-
-        if ( isset( $custom[$podcast_field] ) )
-        {
-
-            return $custom[$podcast_field][0];
         }
     }
 

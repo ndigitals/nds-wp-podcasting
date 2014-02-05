@@ -66,7 +66,7 @@ echo '<?xml version="1.0" encoding="'.get_option('blog_charset').'"?'.'>'; ?>
          */
         do_action( 'podcast_head');
 
-        while( have_posts()) : the_post();
+        while( $posts->have_posts()) : $posts->the_post();
             ?>
             <item>
                 <title><?php the_title_rss() ?></title>
@@ -90,7 +90,6 @@ echo '<?xml version="1.0" encoding="'.get_option('blog_charset').'"?'.'>'; ?>
                 <?php endif; ?>
                 <wfw:commentRss><?php echo esc_url( get_post_comments_feed_link(null, 'rss2') ); ?></wfw:commentRss>
                 <slash:comments><?php echo get_comments_number(); ?></slash:comments>
-                <?php rss_enclosure(); ?>
                 <?php
                 /**
                  * Fires at the end of each RSS2 feed item.

@@ -688,4 +688,24 @@ class NDS_WP_Podcasting
         return wp_get_attachment_image_src( $podcast_image_id, $image_size );
     }
 
+    /**
+     * Podcast field helper method.
+     *
+     * @since    1.0.0
+     *
+     * @param string $podcast_field
+     */
+    public function get_podcast_field( $podcast_field )
+    {
+        global $post;
+
+        $custom = get_post_custom( $post->ID );
+
+        if ( isset( $custom[$podcast_field] ) )
+        {
+
+            return $custom[$podcast_field][0];
+        }
+    }
+
 }
