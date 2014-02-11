@@ -358,6 +358,7 @@ class NDS_WP_Podcasting
         );
 
         $args = array(
+            'label'              => __( 'Podcast Episode' ),
             'labels'             => $labels,
             'public'             => TRUE,
             'publicly_queryable' => TRUE,
