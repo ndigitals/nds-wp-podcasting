@@ -35,7 +35,7 @@ class NDS_WP_Podcasting_Feed
      *
      * @var     string
      */
-    protected $custom_feed_type = 'podcast';
+    protected $custom_feed_type = 'podcast-enhanced';
 
     /**
      * Instance of this class.
@@ -97,7 +97,7 @@ class NDS_WP_Podcasting_Feed
      */
     public function add_podcast_feed()
     {
-        add_feed( 'feed/' . $this->custom_feed_type, array( $this, 'get_feed_content' ) );
+        add_feed( $this->custom_feed_type, array( $this, 'get_feed_content' ) );
     }
 
     /**
