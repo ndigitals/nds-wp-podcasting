@@ -201,14 +201,23 @@ class NDS_WP_Podcasting_Feed
                 }
             }
 
-            $headers  = get_headers( $podcast_audio, 1 );
-            $filesize = $headers['Content-Length'];
+            // Use curl to retrieve audio file header information
+            $ch = curl_init($podcast_audio);
+            curl_exec($ch);
+            if(!curl_errno($ch))
+            {
+                $headers = curl_getinfo($ch);
+            }
+            curl_close($ch); // Close handle
+
+            $filesize = $headers['download_content_length'] ?: 0;
+            $content_type = $headers['content_type'] ?: 'audio/mp3';
             ?>
             <itunes:author><?php echo get_the_author(); ?></itunes:author>
             <itunes:subtitle><?php echo $post->post_title; ?></itunes:subtitle>
             <itunes:summary><?php echo $post->post_excerpt; ?></itunes:summary>
             <itunes:image href="<?php echo $podcast_image[0]; ?>"/>
-            <enclosure url="<?php echo $podcast_audio; ?>" length="<?php echo $filesize; ?>" type="<?php echo $att->post_mime_type; ?>"/>
+            <enclosure url="<?php echo $podcast_audio; ?>" length="<?php echo $filesize; ?>" type="<?php echo $content_type; ?>"/>
             <guid><?php the_permalink(); ?></guid>
             <itunes:duration><?php echo $post->post_content; ?></itunes:duration>
             <itunes:keywords><?php echo implode( ',', $itunes_keywords ); ?></itunes:keywords>
