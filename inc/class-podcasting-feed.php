@@ -202,16 +202,17 @@ class NDS_WP_Podcasting_Feed
             }
 
             // Use curl to retrieve audio file header information
-            $ch = curl_init($podcast_audio);
-            curl_exec($ch);
-            if(!curl_errno($ch))
+            $ch = curl_init();
+            curl_setopt( $ch, CURLOPT_URL, $podcast_audio );
+            curl_exec( $ch );
+            if ( !curl_errno( $ch ) )
             {
-                $headers = curl_getinfo($ch);
+                $headers = curl_getinfo( $ch );
             }
-            curl_close($ch); // Close handle
+            curl_close( $ch ); // Close handle
 
-            $filesize = $headers['download_content_length'] ?: 0;
-            $content_type = $headers['content_type'] ?: 'audio/mp3';
+            $filesize     = isset($headers['download_content_length']) ? $headers['download_content_length'] : 0;
+            $content_type = isset($headers['content_type']) ? $headers['content_type'] : 'audio/mp3';
             ?>
             <itunes:author><?php echo get_the_author(); ?></itunes:author>
             <itunes:subtitle><?php echo $post->post_title; ?></itunes:subtitle>
