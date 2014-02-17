@@ -167,7 +167,7 @@ class NDS_WP_Podcasting_Feed
     /**
      * Add iTunes specific RSS feed elements
      *
-     * TODO: Change item author to speaker (not sure if we need an email address).
+     * TODO: Need to find a non-Daybreak/generic source for subtitle.
      *
      * @since     1.0.0
      */
@@ -231,7 +231,7 @@ class NDS_WP_Podcasting_Feed
             $duration = isset($audio_metadata['length_formatted']) ? $audio_metadata['length_formatted'] : '00:00';
             ?>
             <itunes:author><?php echo implode(', ', $author); ?></itunes:author>
-            <itunes:subtitle><?php echo $post->post_title; ?></itunes:subtitle>
+            <itunes:subtitle><?php echo 'Message by ', implode(', ', $author); ?></itunes:subtitle>
             <itunes:summary><?php echo $post->post_excerpt; ?></itunes:summary>
             <itunes:image href="<?php echo $podcast_image[0]; ?>"/>
             <enclosure url="<?php echo wp_get_attachment_url($podcast_audio); ?>" length="<?php echo $filesize; ?>" type="<?php echo $content_type; ?>"/>
