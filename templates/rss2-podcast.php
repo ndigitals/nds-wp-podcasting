@@ -28,7 +28,7 @@ echo '<?xml version="1.0" encoding="'.get_option('blog_charset').'"?'.'>'; ?>
     >
 
     <channel>
-        <title><?php bloginfo_rss('name'); wp_title_rss(); ?></title>
+        <title><?php bloginfo_rss('name'); ?>: Weekly Message Podcast</title>
         <atom:link href="<?php self_link(); ?>" rel="self" type="application/rss+xml" />
         <link><?php bloginfo_rss('url') ?></link>
         <description><?php bloginfo_rss("description") ?></description>
@@ -67,9 +67,19 @@ echo '<?xml version="1.0" encoding="'.get_option('blog_charset').'"?'.'>'; ?>
         do_action( 'podcast_head');
 
         while( $posts->have_posts()) : $posts->the_post();
+            $series_title = '';
+            $series_list  = wp_get_post_terms( $post->ID, 'nds_wp_podcast_series' );
+            if ( $series_list )
+            {
+                foreach ( $series_list as $series )
+                {
+                    $series_title = $series->name;;
+                    break;
+                }
+            }
             ?>
             <item>
-                <title><?php the_title_rss() ?></title>
+                <title><?php echo $series_title; ?>: <?php the_title_rss() ?></title>
                 <link><?php the_permalink_rss() ?></link>
                 <pubDate><?php echo mysql2date('D, d M Y H:i:s +0000', get_post_time('Y-m-d H:i:s', true), false); ?></pubDate>
                 <dc:creator><![CDATA[<?php the_author() ?>]]></dc:creator>

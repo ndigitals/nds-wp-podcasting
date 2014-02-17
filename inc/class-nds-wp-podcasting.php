@@ -649,13 +649,13 @@ class NDS_WP_Podcasting
      */
     public function get_series_image( $post_id, $image_size = 'itunes-cover' )
     {
-        $series_list = wp_get_post_terms( $post_id, 'nds_wp_podcast_series' );
+        $series_list = wp_get_post_terms( $post_id, $this->plugin_post_type . '_series' );
 
         if ( function_exists( 'get_tax_meta' ) )
         {
             foreach ( $series_list as $series )
             {
-                $podcast_image_meta = get_tax_meta( $series->term_id, 'nds_wp_podcast_series_image', TRUE );
+                $podcast_image_meta = get_tax_meta( $series->term_id, $this->plugin_post_type . '_series_image', TRUE );
                 $podcast_image_id   = ( isset( $podcast_image_meta['id'] ) ) ? $podcast_image_meta['id'] : FALSE;
                 break;
             }
@@ -674,13 +674,13 @@ class NDS_WP_Podcasting
      */
     public function get_speaker_image( $post_id, $image_size = 'itunes-cover' )
     {
-        $speaker_list  = wp_get_post_terms( $post_id, 'nds_wp_podcast_speaker' );
+        $speaker_list  = wp_get_post_terms( $post_id, $this->plugin_post_type . '_speaker' );
 
         if ( function_exists( 'get_tax_meta' ) )
         {
             foreach ( $speaker_list as $speaker )
             {
-                $podcast_image_meta = get_tax_meta( $speaker->term_id, 'nds_wp_podcast_speaker_image', TRUE );
+                $podcast_image_meta = get_tax_meta( $speaker->term_id, $this->plugin_post_type . '_speaker_image', TRUE );
                 $podcast_image_id   = ( isset( $podcast_image_meta['id'] ) ) ? $podcast_image_meta['id'] : FALSE;
                 break;
             }

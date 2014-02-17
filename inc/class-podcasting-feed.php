@@ -176,7 +176,7 @@ class NDS_WP_Podcasting_Feed
 
         global $post;
 
-        $podcast_audio = NDS_WP_Podcasting::get_podcast_field( 'nds_wp_podcast_audio' );
+        $podcast_audio = NDS_WP_Podcasting::get_podcast_field( $this->plugin_post_type . '_audio' );
 
         if ( $podcast_audio )
         {
@@ -191,48 +191,52 @@ class NDS_WP_Podcasting_Feed
                 }
             }
 
-            $author       = array();
-            $speaker_list = wp_get_post_terms( $post->ID, 'nds_wp_podcast_speaker' );
-            foreach ( $speaker_list as $speaker )
+            $series_title = '';
+            $series_list  = wp_get_post_terms( $post->ID, $this->plugin_post_type . '_series' );
+            if ( $series_list )
             {
-                $author[] = $speaker->name;
+                foreach ( $series_list as $series )
+                {
+                    $series_title = $series->name;;
+                    break;
+                }
+            }
+
+            $author       = array();
+            $speaker_list = wp_get_post_terms( $post->ID, $this->plugin_post_type . '_speaker' );
+            if ( $speaker_list )
+            {
+                foreach ( $speaker_list as $speaker )
+                {
+                    $author[] = $speaker->name;
+                }
             }
 
             // use the post tags for itunes:keywords
             $itunes_keywords     = array();
-            $itunes_keywords_arr = get_the_tags();
-            if ( $itunes_keywords_arr )
+            $podcast_episode_tags = wp_get_post_terms( $post->ID, $this->plugin_post_type . '_tag' );
+            if ( $podcast_episode_tags )
             {
-                foreach ( $itunes_keywords_arr as $tag )
+                foreach ( $podcast_episode_tags as $tag )
                 {
                     $itunes_keywords[] = $tag->name;
                 }
             }
 
-            // Use curl to retrieve audio file header information
-            /*$ch = curl_init();
-            curl_setopt( $ch, CURLOPT_URL, $podcast_audio );
-            curl_exec( $ch );
-            if ( !curl_errno( $ch ) )
-            {
-                $headers = curl_getinfo( $ch );
-            }
-            if (class_exists('ChromePhp')) { ChromePhp::log($headers); }
-            curl_close( $ch );*/ // Close handle
-
             $audio_metadata = wp_get_attachment_metadata($podcast_audio);
             if (class_exists('ChromePhp')) { ChromePhp::log($audio_metadata); }
 
-            $filesize     = isset($headers['download_content_length']) ? $headers['download_content_length'] : 0;
-            $content_type = isset($headers['content_type']) ? $headers['content_type'] : 'audio/mpeg';
+            $filesize     = isset($audio_metadata['filesize']) ? $audio_metadata['filesize'] : 0;
+            $content_type = isset($audio_metadata['mime_type']) ? $audio_metadata['mime_type'] : 'audio/mpeg';
+            $duration = isset($audio_metadata['length_formatted']) ? $audio_metadata['length_formatted'] : '00:00';
             ?>
             <itunes:author><?php echo implode(', ', $author); ?></itunes:author>
             <itunes:subtitle><?php echo $post->post_title; ?></itunes:subtitle>
             <itunes:summary><?php echo $post->post_excerpt; ?></itunes:summary>
             <itunes:image href="<?php echo $podcast_image[0]; ?>"/>
-            <enclosure url="<?php echo $podcast_audio; ?>" length="<?php echo $filesize; ?>" type="<?php echo $content_type; ?>"/>
+            <enclosure url="<?php echo wp_get_attachment_url($podcast_audio); ?>" length="<?php echo $filesize; ?>" type="<?php echo $content_type; ?>"/>
             <guid><?php the_permalink(); ?></guid>
-            <itunes:duration><?php echo $post->post_content; ?></itunes:duration>
+            <itunes:duration><?php echo $duration; ?></itunes:duration>
             <itunes:keywords><?php echo implode( ',', $itunes_keywords ); ?></itunes:keywords>
         <?php
         }
