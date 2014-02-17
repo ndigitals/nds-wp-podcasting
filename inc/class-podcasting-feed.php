@@ -152,13 +152,14 @@ class NDS_WP_Podcasting_Feed
         <itunes:subtitle></itunes:subtitle>
         <itunes:author>Daybreak Church</itunes:author>
         <itunes:summary>Weekly messages from Pastor Wes Dupin and guest speakers.</itunes:summary>
+        <itunes:explicit>no</itunes:explicit>
         <itunes:owner>
             <itunes:name>Daybreak Church</itunes:name>
             <itunes:email>webmaster@daybreak.tv</itunes:email>
         </itunes:owner>
-        <itunes:image href="http://example.com/podcasts/everything/AllAboutEverything.jpg"/>
-        <itunes:category text="Technology">
-            <itunes:category text="Gadgets"/>
+        <itunes:image href="http://www.daybreak.tv/uploads/gallery/podcast/daybreak_300x300.png"/>
+        <itunes:category text="Religion &amp; Spirituality">
+            <itunes:category text="Christianity"/>
         </itunes:category>
     <?php
     }
@@ -190,6 +191,13 @@ class NDS_WP_Podcasting_Feed
                 }
             }
 
+            $author       = array();
+            $speaker_list = wp_get_post_terms( $post->ID, 'nds_wp_podcast_speaker' );
+            foreach ( $speaker_list as $speaker )
+            {
+                $author[] = $speaker->name;
+            }
+
             // use the post tags for itunes:keywords
             $itunes_keywords     = array();
             $itunes_keywords_arr = get_the_tags();
@@ -202,19 +210,23 @@ class NDS_WP_Podcasting_Feed
             }
 
             // Use curl to retrieve audio file header information
-            $ch = curl_init();
+            /*$ch = curl_init();
             curl_setopt( $ch, CURLOPT_URL, $podcast_audio );
             curl_exec( $ch );
             if ( !curl_errno( $ch ) )
             {
                 $headers = curl_getinfo( $ch );
             }
-            curl_close( $ch ); // Close handle
+            if (class_exists('ChromePhp')) { ChromePhp::log($headers); }
+            curl_close( $ch );*/ // Close handle
+
+            $audio_metadata = wp_get_attachment_metadata($podcast_audio);
+            if (class_exists('ChromePhp')) { ChromePhp::log($audio_metadata); }
 
             $filesize     = isset($headers['download_content_length']) ? $headers['download_content_length'] : 0;
-            $content_type = isset($headers['content_type']) ? $headers['content_type'] : 'audio/mp3';
+            $content_type = isset($headers['content_type']) ? $headers['content_type'] : 'audio/mpeg';
             ?>
-            <itunes:author><?php echo get_the_author(); ?></itunes:author>
+            <itunes:author><?php echo implode(', ', $author); ?></itunes:author>
             <itunes:subtitle><?php echo $post->post_title; ?></itunes:subtitle>
             <itunes:summary><?php echo $post->post_excerpt; ?></itunes:summary>
             <itunes:image href="<?php echo $podcast_image[0]; ?>"/>

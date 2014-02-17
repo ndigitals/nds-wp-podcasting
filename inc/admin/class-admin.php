@@ -447,16 +447,20 @@ CSS;
      */
     public function post_type_metabox()
     {
-        $add_audio_title = 'Add Audio';
-        $css_meta_class  = $this->plugin_slug . '-meta';
+        $add_audio_title           = 'Add Audio';
+        $css_meta_class            = $this->plugin_slug . '-meta';
+        $audio_file_attachement_id = NDS_WP_Podcasting::get_podcast_field( $this->plugin_post_type . '_audio' );
+        $audio_metadata = wp_get_attachment_metadata($audio_file_attachement_id);
         ?>
         <input type="hidden" name="<?php echo $this->plugin_post_type; ?>_nonce" id="<?php echo $this->plugin_slug; ?>-nonce"
                value="<?php echo wp_create_nonce( $this->plugin_slug . '-nonce' ); ?>"/>
         <ul class="<?php echo $css_meta_class ?> clearfix">
             <li class="clearfix">
-                <label>Audio URL: </label>
-                <input type="text" size="70" name="<?php echo $this->plugin_post_type; ?>_audio" id="<?php echo $this->plugin_slug; ?>-audio"
-                       value="<?php echo NDS_WP_Podcasting::get_podcast_field( $this->plugin_post_type . '_audio' ); ?>"/>
+                <label>Audio: </label>
+                <input type="text" size="40" name="<?php echo $this->plugin_post_type; ?>_audio_name" id="<?php echo $this->plugin_slug; ?>-audio-name"
+                       disabled value="<?php echo NDS_WP_Podcasting::get_podcast_field( $this->plugin_post_type . '_audio' ); ?>"/>
+                <input type="hidden" name="<?php echo $this->plugin_post_type; ?>_audio" id="<?php echo $this->plugin_slug; ?>-audio"
+                       value="<?php echo $audio_file_attachement_id ?>"/>
                 <a href="#" id="<?php echo $this->plugin_slug; ?>-upload-audio-button" class="button"
                    title="<?php esc_html_e( $add_audio_title ); ?>"><?php esc_html_e( $add_audio_title ); ?></a>
             </li>
@@ -529,10 +533,12 @@ CSS;
                         library: { type: 'audio' }
                     });
 
-                    //When a file is selected, grab the URL and set it as the text field's value
+                    // When a file is selected, grab the attachment name and set it as the visible text field's value
+                    // grab the attachment ID and set it as the hidden text field's value
                     custom_uploader.on('select', function () {
                         attachment = custom_uploader.state().get('selection').first().toJSON();
-                        $('#<?php echo $this->plugin_slug ?>-audio').val(attachment.url);
+                        $('#<?php echo $this->plugin_slug ?>-audio-name').val(attachment.name);
+                        $('#<?php echo $this->plugin_slug ?>-audio').val(attachment.id);
                     });
 
                     //Open the uploader dialog
