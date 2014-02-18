@@ -47,9 +47,9 @@ class NDS_WP_Podcasting_Admin
         global $wp_version;
 
         // Call $plugin_slug from initial plugin class.
-        $plugin                 = NDS_WP_Podcasting::get_instance();
-        $this->plugin_slug      = $plugin->get_plugin_slug();
-        $this->plugin_post_type = $plugin->get_plugin_post_type();
+        $this->plugin           = NDS_WP_Podcasting::get_instance();
+        $this->plugin_slug      = $this->plugin->get_plugin_slug();
+        $this->plugin_post_type = $this->plugin->get_plugin_post_type();
 
         // Load admin style sheet and JavaScript.
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
@@ -122,7 +122,7 @@ class NDS_WP_Podcasting_Admin
                 $this->plugin_slug . '-admin-styles',
                 plugins_url( 'css/admin.css', __FILE__ ),
                 array(),
-                Plugin_Name::VERSION
+                NDS_WP_Podcasting::VERSION
             );
         }
 
@@ -150,7 +150,7 @@ class NDS_WP_Podcasting_Admin
                 $this->plugin_slug . '-admin-script',
                 plugins_url( 'js/admin.js', __FILE__ ),
                 array( 'jquery' ),
-                Plugin_Name::VERSION
+                NDS_WP_Podcasting::VERSION
             );
         }
 
@@ -449,7 +449,7 @@ CSS;
     {
         $add_audio_title           = 'Add Audio';
         $css_meta_class            = $this->plugin_slug . '-meta';
-        $audio_file_attachement_id = NDS_WP_Podcasting::get_podcast_field( $this->plugin_post_type . '_audio' );
+        $audio_file_attachement_id = $this->plugin->get_podcast_field( $this->plugin_post_type . '_audio' );
         $audio_attachment_title    = get_the_title( $audio_file_attachement_id );
         ?>
         <input type="hidden" name="<?php echo $this->plugin_post_type; ?>_nonce" id="<?php echo $this->plugin_slug; ?>-nonce"
@@ -467,13 +467,13 @@ CSS;
             <li class="clearfix">
                 <label>Video URL: </label>
                 <input type="text" size="70" name="<?php echo $this->plugin_post_type; ?>_video" id="<?php echo $this->plugin_slug; ?>-video"
-                       value="<?php echo NDS_WP_Podcasting::get_podcast_field( $this->plugin_post_type . '_video' ); ?>"/>
+                       value="<?php echo $this->plugin->get_podcast_field( $this->plugin_post_type . '_video' ); ?>"/>
                 <em>(optional)</em>
             </li>
             <li class="clearfix">
                 <label>Notes URL: </label>
                 <input type="text" size="70" name="<?php echo $this->plugin_post_type; ?>_notes" id="<?php echo $this->plugin_slug; ?>-notes"
-                       value="<?php echo NDS_WP_Podcasting::get_podcast_field( $this->plugin_post_type . '_notes' ); ?>"/>
+                       value="<?php echo $this->plugin->get_podcast_field( $this->plugin_post_type . '_notes' ); ?>"/>
                 <em>(optional)</em>
             </li>
         </ul>

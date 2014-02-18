@@ -32,11 +32,11 @@ class NDS_WP_Podcasting_Episodes_Widget extends WP_Widget
     {
 
         // Call $plugin_slug from initial plugin class.
-        $plugin                 = NDS_WP_Podcasting::get_instance();
-        $this->plugin_slug      = $plugin->get_plugin_slug();
-        $this->plugin_post_type = $plugin->get_plugin_post_type();
+        $this->plugin           = NDS_WP_Podcasting::get_instance();
+        $this->plugin_slug      = $this->plugin->get_plugin_slug();
+        $this->plugin_post_type = $this->plugin->get_plugin_post_type();
         // Defining a class attribute for the widget template filename
-        $this->widget_template  = $this->plugin_slug . '-' .$this->template_filename_base . '.php';
+        $this->widget_template = $this->plugin_slug . '-' . $this->template_filename_base . '.php';
 
         parent::__construct(
               $this->plugin_slug . '_episode_widget', // Base ID
@@ -67,7 +67,7 @@ class NDS_WP_Podcasting_Episodes_Widget extends WP_Widget
             echo $args['before_title'] . $title . $args['after_title'];
         }
 
-        $episodes = NDS_WP_Podcasting::get_latest_episodes($args['post_count']);
+        $episodes = $this->plugin->get_latest_episodes($args['post_count']);
 
         if ( $episodes->have_posts() )
         {

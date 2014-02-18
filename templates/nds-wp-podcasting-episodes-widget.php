@@ -6,21 +6,22 @@
  * Time: 3:03 PM
  */
 
-$date_format    = get_option( 'date_format' );
+$plugin = NDS_WP_Podcasting::get_instance();
+$date_format = get_option( 'date_format' );
 $css_post_id = 'post-' . $post->ID;
 $podcast_series = get_the_term_list( $post->ID, 'nds_wp_podcast_series' );
-$speaker_list   = wp_get_post_terms( $post->ID, 'nds_wp_podcast_speaker' );
-$podcast_audio  = get_post_meta( $post->ID, 'nds_wp_podcast_audio', TRUE );
-$podcast_video  = get_post_meta( $post->ID, 'nds_wp_podcast_video', TRUE );
-$podcast_notes  = get_post_meta( $post->ID, 'nds_wp_podcast_notes', TRUE );
+$speaker_list = wp_get_post_terms( $post->ID, 'nds_wp_podcast_speaker' );
+$podcast_audio = get_post_meta( $post->ID, 'nds_wp_podcast_audio', true );
+$podcast_video = get_post_meta( $post->ID, 'nds_wp_podcast_video', true );
+$podcast_notes = get_post_meta( $post->ID, 'nds_wp_podcast_notes', true );
 // Check for, then use, images from the following sources; episode featured image -> speaker -> series
-$podcast_image = NDS_WP_Podcasting::get_speaker_image( $post->ID, 'podcast-small' );
+$podcast_image = $plugin->get_speaker_image( $post->ID, 'podcast-small' );
 if (!$podcast_image)
 {
-    $podcast_image = NDS_WP_Podcasting::get_episode_image( $post->ID, 'podcast-small' );
+    $podcast_image = $plugin->get_episode_image( $post->ID, 'podcast-small' );
     if (!$podcast_image)
     {
-        $podcast_image = NDS_WP_Podcasting::get_series_image( $post->ID, 'podcast-small' );
+        $podcast_image = $plugin->get_series_image( $post->ID, 'podcast-small' );
     }
 }
 ?>

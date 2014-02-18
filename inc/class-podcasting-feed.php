@@ -57,9 +57,9 @@ class NDS_WP_Podcasting_Feed
         global $wp_version;
 
         // Call $plugin_slug from initial plugin class.
-        $plugin                 = NDS_WP_Podcasting::get_instance();
-        $this->plugin_slug      = $plugin->get_plugin_slug();
-        $this->plugin_post_type = $plugin->get_plugin_post_type();
+        $this->plugin           = NDS_WP_Podcasting::get_instance();
+        $this->plugin_slug      = $this->plugin->get_plugin_slug();
+        $this->plugin_post_type = $this->plugin->get_plugin_post_type();
         // Defining a class attribute for the feed template filename
         $this->feed_template = $this->base_feed_type . '-' . $this->custom_feed_type . '.php';
 
@@ -111,16 +111,13 @@ class NDS_WP_Podcasting_Feed
     {
         global $posts;
         $opt_feed_episode_count = 10;
-        $posts               = NDS_WP_Podcasting::get_latest_episodes( $opt_feed_episode_count );
+        $posts                  = $this->plugin->get_latest_episodes( $opt_feed_episode_count );
 
-        if ( $overridden_template = locate_template( $this->feed_template ) )
-        {
+        if ($overridden_template = locate_template( $this->feed_template )) {
             // locate_template() returns path to file
             // if either the child theme or the parent theme have overridden the template
             load_template( $overridden_template );
-        }
-        else
-        {
+        } else {
             // If neither the child nor parent theme have overridden the template,
             // we load the template from the 'templates' sub-directory of the plugin directory
             load_template( NDSWP_PODCASTING_PATH . 'templates/' . $this->feed_template );
@@ -176,18 +173,18 @@ class NDS_WP_Podcasting_Feed
 
         global $post;
 
-        $podcast_audio = NDS_WP_Podcasting::get_podcast_field( $this->plugin_post_type . '_audio' );
+        $podcast_audio = $this->plugin->get_podcast_field( $this->plugin_post_type . '_audio' );
 
         if ( $podcast_audio )
         {
             // Check for then use images from the following sources; episode featured image -> series -> speaker
-            $podcast_image = NDS_WP_Podcasting::get_episode_image( $post->ID );
+            $podcast_image = $this->plugin->get_episode_image( $post->ID );
             if ( !$podcast_image )
             {
-                $podcast_image = NDS_WP_Podcasting::get_series_image( $post->ID );
+                $podcast_image = $this->plugin->get_series_image( $post->ID );
                 if ( !$podcast_image )
                 {
-                    $podcast_image = NDS_WP_Podcasting::get_speaker_image( $post->ID );
+                    $podcast_image = $this->plugin->get_speaker_image( $post->ID );
                 }
             }
 
