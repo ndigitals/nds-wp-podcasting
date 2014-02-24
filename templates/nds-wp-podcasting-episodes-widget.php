@@ -91,7 +91,7 @@ if (!$podcast_image)
     }
     .podcast-episodes-widget-links li {
         float: left;
-        font-size: 1.5em;
+        font-size: 1.4em;
         margin: 4px 8px;
     }
 </style>

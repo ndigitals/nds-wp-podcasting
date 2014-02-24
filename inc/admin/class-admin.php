@@ -658,7 +658,7 @@ CSS;
                     wp_post_revision_title( (int)$_GET['revision'], FALSE )
                 ) : FALSE,
             6  => sprintf(
-                __( 'Podcast episode published. <a href="%s">View epidoes</a>' ),
+                __( 'Podcast episode published. <a href="%s">View episode</a>' ),
                 esc_url( get_permalink( $post_ID ) )
             ),
             7  => __( 'Podcast episode saved.' ),
