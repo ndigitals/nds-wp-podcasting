@@ -68,11 +68,11 @@ if (!$podcast_image)
                 <a href="#<?php echo $css_post_id; ?>" onclick="jQuery('#<?php echo $css_post_id; ?> .podcast-audio-embed').slideUp();jQuery('#<?php echo $css_post_id; ?> .podcast-video-embed').slideToggle();"><span class="icon-play"></span> Watch</a>
             </li>
         <?php endif; ?>
-        <?php if ( strlen( $podcast_audio ) > 0 ) : ?>
-            <li>
-                <a href="<?php echo $podcast_audio; ?>" target="_blank"><span class="icon-cloud-download"></span> Download</a>
-            </li>
-        <?php endif; ?>
+        <?php /*if ( strlen( $podcast_audio ) > 0 ) :*/ ?>
+            <!--<li>
+                <a href="<?php /*echo $podcast_audio; */?>" target="_blank"><span class="icon-cloud-download"></span> Download</a>
+            </li>-->
+        <?php /*endif;*/ ?>
         <?php if ( strlen( $podcast_notes ) > 0 ) : ?>
             <li>
                 <a href="<?php echo $podcast_notes; ?>" target="_blank"><span class="icon-notebook"></span> Notes</a>
