@@ -57,7 +57,7 @@ if (!$podcast_image)
             <?php echo wp_oembed_get( $podcast_video ); ?>
         </div>
     <?php endif; ?>
-    <ul class="podcast-episodes-widget-links">
+    <ul class="podcast-episodes-widget-links clearfix">
         <?php if ( strlen( $podcast_audio ) > 0 ) : ?>
             <li>
                 <a href="#<?php echo $css_post_id; ?>" onclick="jQuery('#<?php echo $css_post_id; ?> .podcast-video-embed').slideUp();jQuery('#<?php echo $css_post_id; ?> .podcast-audio-embed').slideToggle();"><span class="icon-headphones"></span> Listen</a>
@@ -86,7 +86,7 @@ if (!$podcast_image)
     }
     .podcast-episodes-widget-links {
         clear: both;
-        list-style: none;
+        list-style-type: none;
         margin: 0;
     }
     .podcast-episodes-widget-links li {
