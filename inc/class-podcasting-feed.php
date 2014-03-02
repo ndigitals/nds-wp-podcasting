@@ -154,7 +154,7 @@ class NDS_WP_Podcasting_Feed
             <itunes:name>Daybreak Church</itunes:name>
             <itunes:email>webmaster@daybreak.tv</itunes:email>
         </itunes:owner>
-        <itunes:image href="http://www.daybreak.tv/uploads/gallery/podcast/daybreak_300x300.png"/>
+        <itunes:image href="http://www.daybreak.tv/wp-content/uploads/daybreak_300x300.jpg"/>
         <itunes:category text="Religion &amp; Spirituality">
             <itunes:category text="Christianity"/>
         </itunes:category>
